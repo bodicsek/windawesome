@@ -1,6 +1,8 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WindowSubclassing", "WindowSubclassing\WindowSubclassing.vcxproj", "{67670ECC-FD00-4B7C-8748-00A168FA9768}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SystemTrayHook", "SystemTrayHook\SystemTrayHook.vcxproj", "{4B1EDA49-44B3-49BC-9B5D-B3F602FDBDBD}"
@@ -20,6 +22,13 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{354EF524-746F-47B0-B9F8-4A9C0F2DE872}"
 	ProjectSection(SolutionItems) = preProject
 		app_version.xml = app_version.xml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{FF508F62-EA59-48E7-9CCB-E6E2745D1D71}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
 Global
