@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using IronPython.Hosting;
 using IronRuby;
 using Microsoft.Scripting.Hosting;
 
@@ -73,19 +72,6 @@ namespace Windawesome
 			private static ScriptEngine pythonEngine;
 			private static ScriptEngine rubyEngine;
 
-			private static ScriptEngine PythonEngine
-			{
-				get
-				{
-					if (pythonEngine == null)
-					{
-						pythonEngine = Python.CreateEngine();
-						InitializeScriptEngine(pythonEngine);
-					}
-					return pythonEngine;
-				}
-			}
-
 			private static ScriptEngine RubyEngine
 			{
 				get
@@ -115,18 +101,11 @@ namespace Windawesome
 					case ".ir":
 					case ".rb":
 						return RubyEngine;
-					case ".ipy":
-					case ".py":
-						return PythonEngine;
 					case ".dll":
 						var assembly = Assembly.LoadFrom(file.FullName);
 						if (RubyEngine != null)
 						{
 							RubyEngine.Runtime.LoadAssembly(assembly);
-						}
-						if (PythonEngine != null)
-						{
-							PythonEngine.Runtime.LoadAssembly(assembly);
 						}
 						break;
 				}
