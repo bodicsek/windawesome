@@ -94,12 +94,20 @@
     <RunPostBuildEvent>Always</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="IronPython, Version=2.7.5.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
-      <HintPath>..\packages\IronPython.2.7.5\lib\Net40\IronPython.dll</HintPath>
+    <Reference Include="IronPython, Version=2.7.0.40, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\IronPython.2.7.2\lib\Net40\IronPython.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="IronPython.Modules, Version=2.7.5.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
-      <HintPath>..\packages\IronPython.2.7.5\lib\Net40\IronPython.Modules.dll</HintPath>
+    <Reference Include="IronPython.Modules, Version=2.7.0.40, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\IronPython.2.7.2\lib\Net40\IronPython.Modules.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="IronPython.SQLite, Version=2.7.0.40, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\IronPython.2.7.2\lib\Net40\IronPython.SQLite.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="IronPython.Wpf, Version=2.7.0.40, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\IronPython.2.7.2\lib\Net40\IronPython.Wpf.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="IronRuby, Version=1.1.3.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
@@ -110,13 +118,25 @@
       <HintPath>..\packages\IronRuby.1.1.3\Lib\IronRuby.Libraries.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="IronRuby.Libraries.Yaml, Version=1.1.3.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\IronRuby.1.1.3\Lib\IronRuby.Libraries.Yaml.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Dynamic, Version=1.1.0.20, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
-      <HintPath>..\packages\IronRuby.1.1.3\Lib\Microsoft.Dynamic.dll</HintPath>
+      <HintPath>..\packages\IronPython.2.7.2\lib\Net40\Microsoft.Dynamic.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Scripting, Version=1.1.0.20, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
-      <HintPath>..\packages\IronRuby.1.1.3\Lib\Microsoft.Scripting.dll</HintPath>
+      <HintPath>..\packages\IronPython.2.7.2\lib\Net40\Microsoft.Scripting.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Scripting.AspNet, Version=1.0.0.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\IronPython.2.7.2\lib\Net40\Microsoft.Scripting.AspNet.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Scripting.Metadata, Version=1.1.0.20, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\IronPython.2.7.2\lib\Net40\Microsoft.Scripting.Metadata.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -125,30 +145,26 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ApplicationTabsWidget.cs" />
+    <Compile Include="Widgets\ApplicationTabsWidget.cs" />
     <Compile Include="Bar.cs" />
     <Compile Include="Config.cs" />
-    <Compile Include="CPUMonitorWidget.cs" />
-    <Compile Include="CurrentlyPlayingWidget.cs" />
+    <Compile Include="Widgets\CPUMonitorWidget.cs" />
+    <Compile Include="Widgets\CurrentlyPlayingWidget.cs" />
     <Compile Include="HashMultiSet.cs" />
     <Compile Include="IBar.cs" />
     <Compile Include="ILayout.cs" />
-    <Compile Include="InputLanguageChangerPlugin.cs" />
     <Compile Include="IPlugin.cs" />
     <Compile Include="IWidget.cs" />
-    <Compile Include="LanguageBarWidget.cs" />
-    <Compile Include="LaptopBatteryMonitorWidget.cs" />
-    <Compile Include="LayoutWidget.cs" />
-    <Compile Include="LoggerPlugin.cs" />
+    <Compile Include="Widgets\LanguageBarWidget.cs" />
+    <Compile Include="Widgets\LaptopBatteryMonitorWidget.cs" />
+    <Compile Include="Widgets\LayoutWidget.cs" />
     <Compile Include="Monitor.cs" />
-    <Compile Include="NetworkMonitorWidget.cs" />
-    <Compile Include="RamMonitorWidget.cs" />
-    <Compile Include="SeparatorWidget.cs" />
+    <Compile Include="Widgets\NetworkMonitorWidget.cs" />
+    <Compile Include="Widgets\RamMonitorWidget.cs" />
+    <Compile Include="Widgets\SeparatorWidget.cs" />
     <Compile Include="SystemAndProcessInformation.cs" />
     <Compile Include="SystemSettingsChanger.cs" />
-    <Compile Include="SystemTrayWidget.cs" />
-    <Compile Include="FloatingLayout.cs" />
-    <Compile Include="FullScreenLayout.cs" />
+    <Compile Include="Widgets\SystemTrayWidget.cs" />
     <Compile Include="NativeMethods.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -157,7 +173,7 @@
     <Compile Include="Windawesome.cs" />
     <Compile Include="Window.cs" />
     <Compile Include="Workspace.cs" />
-    <Compile Include="WorkspacesWidget.cs" />
+    <Compile Include="Widgets\WorkspacesWidget.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -168,13 +184,16 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <None Include="..\Config\3-Hotkeys.rb">
-      <Link>3-Hotkeys.rb</Link>
-    </None>
-    <None Include="..\Widgets\DateTimeWidget.rb">
-      <Link>DateTimeWidget.rb</Link>
-    </None>
     <None Include="app.config" />
+    <None Include="Config\1-General Settings.py">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Config\2-Program Rules.py">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Config\3-Hotkeys.rb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -185,6 +204,9 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="Widgets\DateTimeWidget.rb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0,Profile=Client">
@@ -212,30 +234,21 @@
     <None Include="Images\Icon missing.png" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\Config\1-General Settings.py">
-      <Link>1-General Settings.py</Link>
+    <Content Include="Docs\API.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\Config\2-Program Rules.py">
-      <Link>2-Program Rules.py</Link>
+    <Content Include="Docs\gpl-2.0.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\Docs\API.txt">
-      <Link>API.txt</Link>
-    </Content>
-    <Content Include="..\Docs\Usage.txt">
-      <Link>Usage.txt</Link>
+    <Content Include="Docs\Usage.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>IF NOT EXIST "$(TargetDir)Config" md "$(TargetDir)Config"
-IF NOT EXIST "$(TargetDir)Layouts" md "$(TargetDir)Layouts"
-IF NOT EXIST "$(TargetDir)Widgets" md "$(TargetDir)Widgets"
-IF NOT EXIST "$(TargetDir)Plugins" md "$(TargetDir)Plugins"
-xcopy /Y "$(SolutionDir)Widgets" "$(TargetDir)Widgets"
-xcopy /Y "$(SolutionDir)Layouts" "$(TargetDir)Layouts"
-xcopy /Y "$(SolutionDir)Config" "$(TargetDir)Config"
-xcopy /Y "$(SolutionDir)Plugins" "$(TargetDir)Plugins"
-xcopy /Y "$(SolutionDir)Docs" "$(TargetDir)"</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

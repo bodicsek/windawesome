@@ -120,13 +120,13 @@ namespace Windawesome
 						return PythonEngine;
 					case ".dll":
 						var assembly = Assembly.LoadFrom(file.FullName);
-						if (rubyEngine != null)
+						if (RubyEngine != null)
 						{
-							rubyEngine.Runtime.LoadAssembly(assembly);
+							RubyEngine.Runtime.LoadAssembly(assembly);
 						}
-						if (pythonEngine != null)
+						if (PythonEngine != null)
 						{
-							pythonEngine.Runtime.LoadAssembly(assembly);
+							PythonEngine.Runtime.LoadAssembly(assembly);
 						}
 						break;
 				}
@@ -192,17 +192,17 @@ namespace Windawesome
 
 	public class ProgramRule
 	{
-		internal readonly Regex className;
-		internal readonly Regex displayName;
-		internal readonly Regex processName;
-		internal readonly NativeMethods.WS styleContains;
-		internal readonly NativeMethods.WS styleNotContains;
-		internal readonly NativeMethods.WS_EX exStyleContains;
-		internal readonly NativeMethods.WS_EX exStyleNotContains;
+		public readonly Regex className;
+		public readonly Regex displayName;
+		public readonly Regex processName;
+		public readonly NativeMethods.WS styleContains;
+		public readonly NativeMethods.WS styleNotContains;
+		public readonly NativeMethods.WS_EX exStyleContains;
+		public readonly NativeMethods.WS_EX exStyleNotContains;
 		private readonly CustomMatchingFunction customMatchingFunction;
 		internal readonly CustomMatchingFunction customOwnedWindowMatchingFunction;
 
-		internal readonly bool isManaged;
+		public readonly bool isManaged;
 		internal readonly int tryAgainAfter;
 		internal readonly int windowCreatedDelay;
 		internal readonly bool redrawDesktopOnWindowCreated;
