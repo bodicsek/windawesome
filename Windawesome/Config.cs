@@ -69,7 +69,6 @@ namespace Windawesome
 
 		private static class PluginLoader
 		{
-			private static ScriptEngine pythonEngine;
 			private static ScriptEngine rubyEngine;
 
 			private static ScriptEngine RubyEngine

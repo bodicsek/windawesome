@@ -45,6 +45,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InputLanguageChangerPlugin"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoggerPlugin", "Plugins\LoggerPlugin\LoggerPlugin.csproj", "{BEFE76CC-ADFC-4ADB-9D97-9A62EE9AFBCB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindawesomeIrb", "WindawesomeIrb\WindawesomeIrb.csproj", "{D8921E28-C16E-47D9-A804-E64138E3A826}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -349,6 +351,30 @@ Global
 		{BEFE76CC-ADFC-4ADB-9D97-9A62EE9AFBCB}.Release|x64.Build.0 = Release|x64
 		{BEFE76CC-ADFC-4ADB-9D97-9A62EE9AFBCB}.Release|x86.ActiveCfg = Release|x86
 		{BEFE76CC-ADFC-4ADB-9D97-9A62EE9AFBCB}.Release|x86.Build.0 = Release|x86
+		{D8921E28-C16E-47D9-A804-E64138E3A826}.Debug|Win32.ActiveCfg = Debug|x86
+		{D8921E28-C16E-47D9-A804-E64138E3A826}.Debug|Win32.Build.0 = Debug|x86
+		{D8921E28-C16E-47D9-A804-E64138E3A826}.Debug|x64.ActiveCfg = Debug|x64
+		{D8921E28-C16E-47D9-A804-E64138E3A826}.Debug|x64.Build.0 = Debug|x64
+		{D8921E28-C16E-47D9-A804-E64138E3A826}.Debug|x86.ActiveCfg = Debug|x86
+		{D8921E28-C16E-47D9-A804-E64138E3A826}.Debug|x86.Build.0 = Debug|x86
+		{D8921E28-C16E-47D9-A804-E64138E3A826}.Profiling|Win32.ActiveCfg = Release|x86
+		{D8921E28-C16E-47D9-A804-E64138E3A826}.Profiling|Win32.Build.0 = Release|x86
+		{D8921E28-C16E-47D9-A804-E64138E3A826}.Profiling|x64.ActiveCfg = Release|x64
+		{D8921E28-C16E-47D9-A804-E64138E3A826}.Profiling|x64.Build.0 = Release|x64
+		{D8921E28-C16E-47D9-A804-E64138E3A826}.Profiling|x86.ActiveCfg = Release|x86
+		{D8921E28-C16E-47D9-A804-E64138E3A826}.Profiling|x86.Build.0 = Release|x86
+		{D8921E28-C16E-47D9-A804-E64138E3A826}.Release Profiling|Win32.ActiveCfg = Release|x86
+		{D8921E28-C16E-47D9-A804-E64138E3A826}.Release Profiling|Win32.Build.0 = Release|x86
+		{D8921E28-C16E-47D9-A804-E64138E3A826}.Release Profiling|x64.ActiveCfg = Release|x64
+		{D8921E28-C16E-47D9-A804-E64138E3A826}.Release Profiling|x64.Build.0 = Release|x64
+		{D8921E28-C16E-47D9-A804-E64138E3A826}.Release Profiling|x86.ActiveCfg = Release|x86
+		{D8921E28-C16E-47D9-A804-E64138E3A826}.Release Profiling|x86.Build.0 = Release|x86
+		{D8921E28-C16E-47D9-A804-E64138E3A826}.Release|Win32.ActiveCfg = Release|x86
+		{D8921E28-C16E-47D9-A804-E64138E3A826}.Release|Win32.Build.0 = Release|x86
+		{D8921E28-C16E-47D9-A804-E64138E3A826}.Release|x64.ActiveCfg = Release|x64
+		{D8921E28-C16E-47D9-A804-E64138E3A826}.Release|x64.Build.0 = Release|x64
+		{D8921E28-C16E-47D9-A804-E64138E3A826}.Release|x86.ActiveCfg = Release|x86
+		{D8921E28-C16E-47D9-A804-E64138E3A826}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

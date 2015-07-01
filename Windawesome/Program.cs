@@ -32,6 +32,7 @@ namespace Windawesome
 					AppDomain.CurrentDomain.UnhandledException += (_, e) => OnException(e.ExceptionObject as Exception);
 
 					windawesome = new Windawesome();
+          windawesome.LoadConfig();
 					Application.Run(new WindawesomeApplicationContext());
 
 					Application.ThreadException -= OnApplicationThreadException;

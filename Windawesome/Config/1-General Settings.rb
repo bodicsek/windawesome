@@ -10,7 +10,7 @@ class Object
     System::Linq::Enumerable.method(:of_type).of(type).call(self.to_a)
   end
   def to_clr_a(type = Object)
-    System::Linq::Enumerable.method(:to_array).of(type).call(self.to_clr_seq)
+    System::Linq::Enumerable.method(:to_array).of(type).call(self.to_clr_seq(type))
   end
 end
 
@@ -50,14 +50,14 @@ config.bars =
             20,
             Font.new("Consolas", 11),
             Color.black)
-  ].to_clr_seq(IBar)
+  ].to_clr_a(IBar)
 
 config.workspaces =
   [
     
     Workspace.new(windawesome.monitors[0], FloatingLayout.new, [config.bars[0]].to_clr_seq(IBar))
     
-  ].to_clr_seq(Workspace)
+  ].to_clr_a(Workspace)
 
 config.starting_workspaces =
   [
