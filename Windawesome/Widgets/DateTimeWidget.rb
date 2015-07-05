@@ -1,71 +1,79 @@
 
 class DateTimeWidget
-	include Windawesome::IFixedWidthWidget
-	include System
-	include System::Drawing
-	include System::Windows::Forms
-	include System::Linq
+  include Windawesome::IFixedWidthWidget
+  include System
+  include System::Drawing
+  include System::Windows::Forms
+  include System::Linq
 
-	def initialize string, prefix = " ", suffix = " ", back_color = nil, fore_color = nil, update_time = 30000, click = nil
-		@background_color = back_color || Color.from_argb(0xC0, 0xC0, 0xC0)
-		@foreground_color = fore_color || Color.black
-		@string = string
-		@click = click
-		@prefix = prefix
-		@suffix = suffix
+  attr_accessor :format_string, :background_color, :foreground_color, :prefix, :suffix, :click
 
-		@update_timer = Timer.new
-		@update_timer.interval = update_time
-		@update_timer.tick do |s, ea|
-			old_left = @label.left
-			old_right = @label.right
-			old_width = @label.width
-			@label.text = @prefix + DateTime.now.to_string(@string) + @suffix
-			@label.width = TextRenderer.measure_text(@label.text, @label.font).width
-			if old_width != @label.width
-				self.reposition_controls old_left, old_right
-				@bar.do_fixed_width_widget_width_changed self
-			end
-		end
-	end
+  def initialize args
+    args.each do |k,v|
+      self.send("#{k}=", v) unless v.nil?
+    end
 
-	def static_initialize_widget windawesome; end
+    self.format_string = "ddd, d-MMM" if self.format_string.nil?
+    self.background_color = Color.black if self.background_color.nil?
+    self.foreground_color = Color.gold if self.foreground_color.nil?
+    self.prefix = " " if self.prefix.nil?
+    self.suffix = " " if self.suffix.nil?
 
-	def initialize_widget bar
-		@bar = bar
+    @update_timer = Timer.new
+    @update_timer.interval = 30000
+    @update_timer.tick do |s, ea|
+      old_left = @label.left
+      old_right = @label.right
+      old_width = @label.width
+      @label.text = self.prefix + DateTime.now.to_string(self.format_string) + self.suffix
+      @label.width = TextRenderer.measure_text(@label.text, @label.font).width
+      if old_width != @label.width
+	self.reposition_controls old_left, old_right
+	@bar.do_fixed_width_widget_width_changed self
+      end
+    end
+  end
+  
+  def static_initialize_widget windawesome
+  end
 
-		@label = bar.create_label @prefix + DateTime.now.to_string(@string) + @suffix, 0
+  def initialize_widget bar
+    @bar = bar
+    
+    @label = bar.create_label self.prefix + DateTime.now.to_string(self.format_string) + self.suffix, 0
+    
+    @label.text_align = ContentAlignment.middle_center
+    @label.back_color = self.background_color
+    @label.fore_color = self.foreground_color
+    @label.click.add self.click if self.click
+    
+    @update_timer.start
+  end
 
-		@label.text_align = ContentAlignment.middle_center
-		@label.back_color = @background_color
-		@label.fore_color = @foreground_color
-		@label.click.add @click if @click
+  def get_initial_controls is_left
+    @is_left = is_left          
+    Enumerable.repeat @label, 1
+  end
 
-		@update_timer.start
-	end
+  def reposition_controls left, right
+    @label.location = @is_left ? Point.new(left, 0) : Point.new(right - @label.width, 0)
+  end
 
-	def get_initial_controls is_left
-		@is_left = is_left
+  def get_left
+    @label.left
+  end
 
-		Enumerable.repeat @label, 1
-	end
+  def get_right
+    @label.right
+  end
 
-	def reposition_controls left, right
-		@label.location = @is_left ? Point.new(left, 0) : Point.new(right - @label.width, 0)
-	end
+  def static_dispose
+  end
 
-	def get_left
-		@label.left
-	end
+  def dispose
+  end
 
-	def get_right
-		@label.right
-	end
-
-	def static_dispose; end
-
-	def dispose; end
-
-	def refresh; end
+  def refresh
+  end
 
 end

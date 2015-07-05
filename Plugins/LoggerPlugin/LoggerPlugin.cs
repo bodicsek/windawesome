@@ -50,45 +50,45 @@ namespace Windawesome.Plugins
 		private void OnWorkspaceWindowAdded(Workspace workspace, Window window)
 		{
 			writer.WriteLine("ADDED - class '{0}'; caption '{1}'; workspace '{2}'",
-				window.className, window.DisplayName, workspace.id);
+				window.className, window.DisplayName, workspace.Id);
 		}
 
 		private void OnWorkspaceWindowRemoved(Workspace workspace, Window window)
 		{
 			writer.WriteLine("REMOVED - class '{0}'; caption '{1}'; workspace '{2}'",
-				window.className, window.DisplayName, workspace.id);
+				window.className, window.DisplayName, workspace.Id);
 		}
 
 		private void OnWorkspaceWindowMinimized(Workspace workspace, Window window)
 		{
 			writer.WriteLine("MINIMIZED - class '{0}'; caption '{1}'; workspace '{2}'",
-				window.className, window.DisplayName, workspace.id);
+				window.className, window.DisplayName, workspace.Id);
 		}
 
 		private void OnWorkspaceWindowRestored(Workspace workspace, Window window)
 		{
 			writer.WriteLine("RESTORED - class '{0}'; caption '{1}'; workspace '{2}'",
-				window.className, window.DisplayName, workspace.id);
+				window.className, window.DisplayName, workspace.Id);
 		}
 
 		private void OnWorkspaceShown(Workspace workspace)
 		{
-			writer.WriteLine("Workspace '{0}' shown", workspace.id);
+			writer.WriteLine("Workspace '{0}' shown", workspace.Id);
 		}
 
 		private void OnWorkspaceHidden(Workspace workspace)
 		{
-			writer.WriteLine("Workspace '{0}' hidden", workspace.id);
+			writer.WriteLine("Workspace '{0}' hidden", workspace.Id);
 		}
 
 		private void OnWorkspaceActivated(Workspace workspace)
 		{
-			writer.WriteLine("Workspace '{0}' activated", workspace.id);
+			writer.WriteLine("Workspace '{0}' activated", workspace.Id);
 		}
 
 		private void OnWorkspaceDeactivated(Workspace workspace)
 		{
-			writer.WriteLine("Workspace '{0}' deactivated", workspace.id);
+			writer.WriteLine("Workspace '{0}' deactivated", workspace.Id);
 		}
 
 		private void OnWindowActivated(IntPtr hWnd)
@@ -97,12 +97,12 @@ namespace Windawesome.Plugins
 			if (window != null)
 			{
 				writer.WriteLine("ACTIVATED - class '{0}'; caption '{1}'; workspace '{2}'",
-					window.className, window.DisplayName, windawesome.CurrentWorkspace.id);
+					window.className, window.DisplayName, windawesome.CurrentWorkspace.Id);
 			}
 			else
 			{
 				writer.WriteLine("ACTIVATED - HWND '{0}'; caption '{1}'; workspace '{2}'",
-					hWnd, NativeMethods.GetText(hWnd), windawesome.CurrentWorkspace.id);
+					hWnd, NativeMethods.GetText(hWnd), windawesome.CurrentWorkspace.Id);
 			}
 		}
 

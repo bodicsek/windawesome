@@ -318,18 +318,18 @@ namespace Windawesome
 
 		internal void HideBars(Workspace newWorkspace, Workspace oldWorkspace)
 		{
-			var oldBarsAtTop = oldWorkspace.barsAtTop[monitorIndex];
-			var oldBarsAtBottom = oldWorkspace.barsAtBottom[monitorIndex];
-			var newBarsAtTop = newWorkspace.barsAtTop[monitorIndex];
-			var newBarsAtBottom = newWorkspace.barsAtBottom[monitorIndex];
+			var oldBarsAtTop = oldWorkspace.AllBarsAtTop[monitorIndex];
+			var oldBarsAtBottom = oldWorkspace.AllBarsAtBottom[monitorIndex];
+			var newBarsAtTop = newWorkspace.AllBarsAtTop[monitorIndex];
+			var newBarsAtBottom = newWorkspace.AllBarsAtBottom[monitorIndex];
 
 			oldBarsAtTop.Concat(oldBarsAtBottom).Except(newBarsAtTop.Concat(newBarsAtBottom)).ForEach(b => b.Hide());
 		}
 
 		internal void ShowBars(Workspace workspace)
 		{
-			var newBarsAtTop = workspace.barsAtTop[monitorIndex];
-			var newBarsAtBottom = workspace.barsAtBottom[monitorIndex];
+			var newBarsAtTop = workspace.AllBarsAtTop[monitorIndex];
+			var newBarsAtBottom = workspace.AllBarsAtBottom[monitorIndex];
 
 			newBarsAtTop.Concat(newBarsAtBottom).ForEach(b => b.Show());
 		}
@@ -371,11 +371,11 @@ namespace Windawesome
 
 		internal void AddWorkspace(Workspace workspace)
 		{
-			var workspaceBarsAtTop = workspace.barsAtTop[monitorIndex];
-			var workspaceBarsAtBottom = workspace.barsAtBottom[monitorIndex];
+			var workspaceBarsAtTop = workspace.AllBarsAtTop[monitorIndex];
+			var workspaceBarsAtBottom = workspace.AllBarsAtBottom[monitorIndex];
 
 			var matchingBar = workspaces.Keys.FirstOrDefault(ws =>
-				workspaceBarsAtTop.SequenceEqual(ws.barsAtTop[monitorIndex]) && workspaceBarsAtBottom.SequenceEqual(ws.barsAtBottom[monitorIndex]));
+				workspaceBarsAtTop.SequenceEqual(ws.AllBarsAtTop[monitorIndex]) && workspaceBarsAtBottom.SequenceEqual(ws.AllBarsAtBottom[monitorIndex]));
 			if (matchingBar != null)
 			{
 				var matchingWorkspace = workspaces[matchingBar];
@@ -436,8 +436,8 @@ namespace Windawesome
 			ShowHideAppBarForms(previousAppBarTopWindow, newAppBarTopWindow);
 			ShowHideAppBarForms(previousAppBarBottomWindow, newAppBarBottomWindow);
 
-			var newBarsAtTop = newWorkspace.barsAtTop[monitorIndex];
-			var newBarsAtBottom = newWorkspace.barsAtBottom[monitorIndex];
+			var newBarsAtTop = newWorkspace.AllBarsAtTop[monitorIndex];
+			var newBarsAtBottom = newWorkspace.AllBarsAtBottom[monitorIndex];
 
 			var winPosInfo = NativeMethods.BeginDeferWindowPos(newBarsAtTop.Count + newBarsAtBottom.Count);
 			if (newAppBarTopWindow != null)

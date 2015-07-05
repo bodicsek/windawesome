@@ -4,70 +4,82 @@ using System.Windows.Forms;
 
 namespace Windawesome.Widgets
 {
-	public sealed class SeparatorWidget : IFixedWidthWidget
-	{
-		private Label label;
-		private bool isLeft;
-		private readonly string separator;
-		private readonly Color backgroundColor;
-		private readonly Color foregroundColor;
+  public sealed class SeparatorWidget : IFixedWidthWidget
+  {
+    private Label _label;
+    private bool _isLeft;
 
-		public SeparatorWidget(string separator = "|", Color? backgroundColor = null, Color? foregroundColor = null)
-		{
-			this.separator = separator;
 
-			this.backgroundColor = backgroundColor ?? Color.White;
-			this.foregroundColor = foregroundColor ?? Color.Black;
-		}
+    public string Separator { get; set; }
 
-		#region IWidget Members
+    public Color BackgroundColor { get; set; }
 
-		void IWidget.StaticInitializeWidget(Windawesome windawesome)
-		{
-		}
+    public Color ForegroundColor { get; set; }
 
-		void IWidget.InitializeWidget(Bar bar)
-		{
-			label = bar.CreateLabel(separator, 0);
-			label.BackColor = backgroundColor;
-			label.ForeColor = foregroundColor;
-			label.TextAlign = ContentAlignment.MiddleCenter;
-		}
 
-		IEnumerable<Control> IFixedWidthWidget.GetInitialControls(bool isLeft)
-		{
-			this.isLeft = isLeft;
+    public SeparatorWidget()
+    {
+      Separator = "|";
+    }
 
-			return new[] { label };
-		}
+    public SeparatorWidget(string separator = "|", Color? backgroundColor = null, Color? foregroundColor = null)
+      : this()
+    {
+      Separator = separator;
 
-		public void RepositionControls(int left, int right)
-		{
-			this.label.Location = this.isLeft ? new Point(left, 0) : new Point(right - this.label.Width, 0);
-		}
+      BackgroundColor = backgroundColor ?? Color.White;
+      ForegroundColor = foregroundColor ?? Color.Black;
+    }
 
-		int IWidget.GetLeft()
-		{
-			return label.Left;
-		}
 
-		int IWidget.GetRight()
-		{
-			return label.Right;
-		}
+    #region IWidget Members
 
-		void IWidget.StaticDispose()
-		{
-		}
+    void IWidget.StaticInitializeWidget(Windawesome windawesome)
+    {
+    }
 
-		void IWidget.Dispose()
-		{
-		}
+    void IWidget.InitializeWidget(Bar bar)
+    {
+      _label = bar.CreateLabel(Separator, 0);
+      _label.BackColor = BackgroundColor;
+      _label.ForeColor = ForegroundColor;
+      _label.TextAlign = ContentAlignment.MiddleCenter;
+    }
 
-		void IWidget.Refresh()
-		{
-		}
+    IEnumerable<Control> IFixedWidthWidget.GetInitialControls(bool isLeft)
+    {
+      this._isLeft = isLeft;
 
-		#endregion
-	}
+      return new[] { _label };
+    }
+
+    public void RepositionControls(int left, int right)
+    {
+      this._label.Location = this._isLeft ? new Point(left, 0) : new Point(right - this._label.Width, 0);
+    }
+
+    int IWidget.GetLeft()
+    {
+      return _label.Left;
+    }
+
+    int IWidget.GetRight()
+    {
+      return _label.Right;
+    }
+
+    void IWidget.StaticDispose()
+    {
+    }
+
+    void IWidget.Dispose()
+    {
+    }
+
+    void IWidget.Refresh()
+    {
+    }
+
+    #endregion
+  }
 }

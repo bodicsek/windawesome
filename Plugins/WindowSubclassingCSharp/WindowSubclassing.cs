@@ -39,7 +39,7 @@ namespace Windawesome.Plugins
 				{
 					if (Environment.Is64BitProcess && window.is64BitProcess)
 					{
-						if (subclassedWindows[workspace.id - 1].Add(window) == HashMultiSet<Window>.AddResult.AddedFirst)
+						if (subclassedWindows[workspace.Id - 1].Add(window) == HashMultiSet<Window>.AddResult.AddedFirst)
 						{
 							NativeMethods.SubclassWindow64(windawesome.Handle, window.hWnd);
 						}
@@ -50,7 +50,7 @@ namespace Windawesome.Plugins
 					}
 					else if (!Environment.Is64BitOperatingSystem)
 					{
-						if (subclassedWindows[workspace.id - 1].Add(window) == HashMultiSet<Window>.AddResult.AddedFirst)
+						if (subclassedWindows[workspace.Id - 1].Add(window) == HashMultiSet<Window>.AddResult.AddedFirst)
 						{
 							NativeMethods.SubclassWindow32(windawesome.Handle, window.hWnd);
 						}
@@ -65,7 +65,7 @@ namespace Windawesome.Plugins
 
 		private void OnWorkspaceApplicationRemoved(Workspace workspace, Window window)
 		{
-			switch (subclassedWindows[workspace.id - 1].Remove(window))
+			switch (subclassedWindows[workspace.Id - 1].Remove(window))
 			{
 				case HashMultiSet<Window>.RemoveResult.RemovedLast:
 					NativeMethods.UnsubclassWindow(window.hWnd);
@@ -78,13 +78,13 @@ namespace Windawesome.Plugins
 
 		private void OnWorkspaceChangedFrom(Workspace workspace)
 		{
-			subclassedWindows[workspace.id - 1].Where(w => w.WorkspacesCount > 1).ForEach(w =>
+			subclassedWindows[workspace.Id - 1].Where(w => w.WorkspacesCount > 1).ForEach(w =>
 				NativeMethods.SendNotifyMessage(w.hWnd, stopWindowProcMessage, UIntPtr.Zero, IntPtr.Zero));
 		}
 
 		private void OnWorkspaceChangedTo(Workspace workspace)
 		{
-			subclassedWindows[workspace.id - 1].Where(w => w.WorkspacesCount > 1).ForEach(w =>
+			subclassedWindows[workspace.Id - 1].Where(w => w.WorkspacesCount > 1).ForEach(w =>
 				NativeMethods.SendNotifyMessage(w.hWnd, startWindowProcMessage, UIntPtr.Zero, IntPtr.Zero));
 		}
 
@@ -92,7 +92,7 @@ namespace Windawesome.Plugins
 		{
 			if (workspace.Layout.LayoutName() != "Tile" && workspace.Layout.LayoutName() != "Full Screen")
 			{
-				subclassedWindows[workspace.id - 1].ForEach(w => OnWorkspaceApplicationRemoved(workspace, w));
+				subclassedWindows[workspace.Id - 1].ForEach(w => OnWorkspaceApplicationRemoved(workspace, w));
 			}
 		}
 

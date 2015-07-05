@@ -6,395 +6,406 @@ using System.Windows.Forms;
 
 namespace Windawesome.Widgets
 {
-	public sealed class ApplicationTabsWidget : ISpanWidget
-	{
-		private static Windawesome windawesome;
+  public sealed class ApplicationTabsWidget : ISpanWidget
+  {
+    private static Windawesome _windawesome;
 
-		private LinkedList<Tuple<IntPtr, Panel>>[] applicationPanels; // [(hWnd, Panel)]
-		private Panel currentlyHighlightedPanel;
-		private bool[] mustResize;
-		private int left, right;
-		private readonly bool showSingleApplicationTab;
-		private readonly Color normalForegroundColor;
-		private readonly Color normalBackgroundColor;
-		private readonly Color highlightedForegroundColor;
-		private readonly Color highlightedBackgroundColor;
-		private bool isShown;
+    private LinkedList<Tuple<IntPtr, Panel>>[] _applicationPanels; // [(hWnd, Panel)]
+    private Panel _currentlyHighlightedPanel;
+    private bool[] _mustResize;
+    private int _left, _right;
+    private Bar _bar;
+    private bool _isShown;
 
-		private Bar bar;
 
-		public ApplicationTabsWidget(bool showSingleApplicationTab = false,
-			Color? normalForegroundColor = null, Color? normalBackgroundColor = null,
-			Color? highlightedForegroundColor = null, Color? highlightedBackgroundColor = null)
-		{
-			this.showSingleApplicationTab = showSingleApplicationTab;
-			this.normalForegroundColor = normalForegroundColor ?? Color.Black;
-			this.normalBackgroundColor = normalBackgroundColor ?? Color.FromArgb(0xF0, 0xF0, 0xF0);
-			this.highlightedForegroundColor = highlightedForegroundColor ?? Color.White;
-			this.highlightedBackgroundColor = highlightedBackgroundColor ?? Color.FromArgb(0x33, 0x99, 0xFF);
+    public bool ShowSingleApplicationTab { get; set; }
 
-			isShown = false;
-		}
+    public Color NormalForegroundColor { get; set; }
 
-		private void ResizeApplicationPanels(int left, int right, int workspaceId)
-		{
-			mustResize[workspaceId] = false;
+    public Color NormalBackgroundColor { get; set; }
 
-			if (applicationPanels[workspaceId].Count > 0)
-			{
-				var eachWidth = (right - left) / (showSingleApplicationTab ? 1 : applicationPanels[workspaceId].Count);
+    public Color HighlightedForegroundColor { get; set; }
 
-				foreach (var panel in this.applicationPanels[workspaceId].Select(tuple => tuple.Item2))
-				{
-					panel.Location = new Point(left, 0);
-					panel.Size = new Size(eachWidth, this.bar.GetBarHeight());
-					panel.Controls[0].Size = new Size(this.bar.GetBarHeight(), this.bar.GetBarHeight());
-					panel.Controls[1].Size = new Size(eachWidth - this.bar.GetBarHeight(), this.bar.GetBarHeight());
-					if (!this.showSingleApplicationTab)
-					{
-						left += eachWidth;
-					}
-				}
+    public Color HighlightedBackgroundColor { get; set; }
 
-				if (!showSingleApplicationTab && currentlyHighlightedPanel != null)
-				{
-					if (applicationPanels[workspaceId].Count == 1)
-					{
-						currentlyHighlightedPanel.ForeColor = normalForegroundColor;
-						currentlyHighlightedPanel.BackColor = normalBackgroundColor;
-					}
-					else
-					{
-						currentlyHighlightedPanel.ForeColor = highlightedForegroundColor;
-						currentlyHighlightedPanel.BackColor = highlightedBackgroundColor;
-					}
-				}
-			}
-		}
 
-		private Panel CreatePanel(Window window)
-		{
-			var panel = new Panel();
-			panel.SuspendLayout();
-			panel.AutoSize = false;
-			panel.Location = new Point(left, 0);
-			panel.ForeColor = normalForegroundColor;
-			panel.BackColor = normalBackgroundColor;
+    public ApplicationTabsWidget()
+    {
+      _isShown = false;
+    }
 
-			var pictureBox = new PictureBox
-				{
-					Size = new Size(this.bar.GetBarHeight(), this.bar.GetBarHeight()),
-					SizeMode = PictureBoxSizeMode.CenterImage
-				};
-			pictureBox.Click += this.OnApplicationTabClick;
-			panel.Controls.Add(pictureBox);
+    public ApplicationTabsWidget(bool showSingleApplicationTab = false,
+      Color? normalForegroundColor = null, Color? normalBackgroundColor = null,
+      Color? highlightedForegroundColor = null, Color? highlightedBackgroundColor = null)
+      : this()
+    {
+      ShowSingleApplicationTab = showSingleApplicationTab;
+      NormalForegroundColor = normalForegroundColor ?? Color.Black;
+      NormalBackgroundColor = normalBackgroundColor ?? Color.FromArgb(0xF0, 0xF0, 0xF0);
+      HighlightedForegroundColor = highlightedForegroundColor ?? Color.White;
+      HighlightedBackgroundColor = highlightedBackgroundColor ?? Color.FromArgb(0x33, 0x99, 0xFF);
+    }
 
-			Utilities.GetWindowSmallIconAsBitmap(window.hWnd, bitmap => pictureBox.Image = bitmap);
 
-			var label = bar.CreateLabel(window.DisplayName, bar.GetBarHeight(), 0);
-			label.Click += this.OnApplicationTabClick;
-			panel.Controls.Add(label);
+    private void ResizeApplicationPanels(int left, int right, int workspaceId)
+    {
+      _mustResize[workspaceId] = false;
 
-			panel.ResumeLayout();
-			return panel;
-		}
+      if (_applicationPanels[workspaceId].Count > 0)
+      {
+        var eachWidth = (right - left) / (ShowSingleApplicationTab ? 1 : _applicationPanels[workspaceId].Count);
 
-		private void OnWindowActivated(IntPtr hWnd)
-		{
-			if (isShown && (!showSingleApplicationTab || bar.Monitor.CurrentVisibleWorkspace.IsCurrentWorkspace))
-			{
-				Panel panel = null;
-				var applications = applicationPanels[bar.Monitor.CurrentVisibleWorkspace.id - 1];
+        foreach (var panel in this._applicationPanels[workspaceId].Select(tuple => tuple.Item2))
+        {
+          panel.Location = new Point(left, 0);
+          panel.Size = new Size(eachWidth, this._bar.GetBarHeight());
+          panel.Controls[0].Size = new Size(this._bar.GetBarHeight(), this._bar.GetBarHeight());
+          panel.Controls[1].Size = new Size(eachWidth - this._bar.GetBarHeight(), this._bar.GetBarHeight());
+          if (!this.ShowSingleApplicationTab)
+          {
+            left += eachWidth;
+          }
+        }
 
-				if (applications.Count > 0 &&
-					(hWnd = Utilities.DoForSelfAndOwnersWhile(hWnd, h => applications.All(t => t.Item1 != h))) != IntPtr.Zero)
-				{
-					panel = applications.First(t => t.Item1 == hWnd).Item2;
-					if (panel == currentlyHighlightedPanel)
-					{
-						return ;
-					}
-				}
+        if (!ShowSingleApplicationTab && _currentlyHighlightedPanel != null)
+        {
+          if (_applicationPanels[workspaceId].Count == 1)
+          {
+            _currentlyHighlightedPanel.ForeColor = NormalForegroundColor;
+            _currentlyHighlightedPanel.BackColor = NormalBackgroundColor;
+          }
+          else
+          {
+            _currentlyHighlightedPanel.ForeColor = HighlightedForegroundColor;
+            _currentlyHighlightedPanel.BackColor = HighlightedBackgroundColor;
+          }
+        }
+      }
+    }
 
-				// removes the current highlight
-				if (currentlyHighlightedPanel != null)
-				{
-					if (showSingleApplicationTab)
-					{
-						currentlyHighlightedPanel.Hide();
-					}
-					else
-					{
-						currentlyHighlightedPanel.ForeColor = normalForegroundColor;
-						currentlyHighlightedPanel.BackColor = normalBackgroundColor;
-					}
-				}
+    private Panel CreatePanel(Window window)
+    {
+      var panel = new Panel();
+      panel.SuspendLayout();
+      panel.AutoSize = false;
+      panel.Location = new Point(_left, 0);
+      panel.ForeColor = NormalForegroundColor;
+      panel.BackColor = NormalBackgroundColor;
 
-				// highlights the new app
-				if (panel != null)
-				{
-					if (showSingleApplicationTab)
-					{
-						panel.Show();
-					}
-					else if (applications.Count > 1)
-					{
-						panel.ForeColor = highlightedForegroundColor;
-						panel.BackColor = highlightedBackgroundColor;
-					}
+      var pictureBox = new PictureBox
+        {
+          Size = new Size(this._bar.GetBarHeight(), this._bar.GetBarHeight()),
+          SizeMode = PictureBoxSizeMode.CenterImage
+        };
+      pictureBox.Click += this.OnApplicationTabClick;
+      panel.Controls.Add(pictureBox);
 
-					currentlyHighlightedPanel = panel;
-				}
-				else
-				{
-					currentlyHighlightedPanel = null;
-				}
-			}
-		}
+      Utilities.GetWindowSmallIconAsBitmap(window.hWnd, bitmap => pictureBox.Image = bitmap);
 
-		private void OnApplicationTabClick(object sender, EventArgs e)
-		{
-			windawesome.SwitchToApplication(
-				applicationPanels[bar.Monitor.CurrentVisibleWorkspace.id - 1].
-					First(tuple => tuple.Item2 == (((Control) sender).Parent as Panel)).Item1);
-		}
+      var label = _bar.CreateLabel(window.DisplayName, _bar.GetBarHeight(), 0);
+      label.Click += this.OnApplicationTabClick;
+      panel.Controls.Add(label);
 
-		private void OnWindowTitleOrIconChanged(Workspace workspace, Window window, string newText, Bitmap newIcon)
-		{
-			if (newText != null) // text changed
-			{
-				Tuple<IntPtr, Panel> tuple;
-				var applications = applicationPanels[workspace.id - 1];
-				if ((tuple = applications.FirstOrDefault(t => t.Item1 == window.hWnd)) != null)
-				{
-					tuple.Item2.Controls[1].Text = newText;
-				}
-			}
-			else // icon changed
-			{
-				Tuple<IntPtr, Panel> tuple;
-				var applications = applicationPanels[workspace.id - 1];
-				if ((tuple = applications.FirstOrDefault(t => t.Item1 == window.hWnd)) != null)
-				{
-					((PictureBox) tuple.Item2.Controls[0]).Image = newIcon;
-				}
-			}
-		}
+      panel.ResumeLayout();
+      return panel;
+    }
 
-		private void OnWorkspaceWindowAdded(Workspace workspace, Window window)
-		{
-			var workspaceId = workspace.id - 1;
-			var newPanel = CreatePanel(window);
+    private void OnWindowActivated(IntPtr hWnd)
+    {
+      if (_isShown && (!ShowSingleApplicationTab || _bar.Monitor.CurrentVisibleWorkspace.IsCurrentWorkspace))
+      {
+        Panel panel = null;
+        var applications = _applicationPanels[_bar.Monitor.CurrentVisibleWorkspace.Id - 1];
 
-			applicationPanels[workspaceId].AddFirst(Tuple.Create(window.hWnd, newPanel));
+        if (applications.Count > 0 &&
+          (hWnd = Utilities.DoForSelfAndOwnersWhile(hWnd, h => applications.All(t => t.Item1 != h))) != IntPtr.Zero)
+        {
+          panel = applications.First(t => t.Item1 == hWnd).Item2;
+          if (panel == _currentlyHighlightedPanel)
+          {
+            return;
+          }
+        }
 
-			if (isShown && bar.Monitor == workspace.Monitor && workspace.IsWorkspaceVisible)
-			{
-				ResizeApplicationPanels(left, right, workspaceId);
-			}
-			else
-			{
-				newPanel.Hide();
-				mustResize[workspaceId] = true;
-			}
-			bar.DoSpanWidgetControlsAdded(this, new[] { newPanel });
-		}
+        // removes the current highlight
+        if (_currentlyHighlightedPanel != null)
+        {
+          if (ShowSingleApplicationTab)
+          {
+            _currentlyHighlightedPanel.Hide();
+          }
+          else
+          {
+            _currentlyHighlightedPanel.ForeColor = NormalForegroundColor;
+            _currentlyHighlightedPanel.BackColor = NormalBackgroundColor;
+          }
+        }
 
-		private void OnWorkspaceWindowRemoved(Workspace workspace, Window window)
-		{
-			var workspaceId = workspace.id - 1;
-			var tuple = applicationPanels[workspaceId].FirstOrDefault(t => t.Item1 == window.hWnd);
-			if (tuple != null)
-			{
-				applicationPanels[workspaceId].Remove(tuple);
-				if (isShown && bar.Monitor == workspace.Monitor && workspace.IsWorkspaceVisible)
-				{
-					ResizeApplicationPanels(left, right, workspaceId);
-				}
-				else
-				{
-					mustResize[workspaceId] = true;
-				}
-				bar.DoSpanWidgetControlsRemoved(this, new[] { tuple.Item2 });
-			}
-		}
+        // highlights the new app
+        if (panel != null)
+        {
+          if (ShowSingleApplicationTab)
+          {
+            panel.Show();
+          }
+          else if (applications.Count > 1)
+          {
+            panel.ForeColor = HighlightedForegroundColor;
+            panel.BackColor = HighlightedBackgroundColor;
+          }
 
-		private void OnWorkspaceWindowOrderChanged(Workspace workspace, Window window, int positions, bool backwards)
-		{
-			var applications = applicationPanels[workspace.id - 1];
-			for (var node = applications.First; node != null; node = node.Next)
-			{
-				if (node.Value.Item1 == window.hWnd)
-				{
-					var otherNode = backwards ? node.Previous : node.Next;
-					applications.Remove(node);
-					for (var i = 1; i < positions; i++)
-					{
-						otherNode = backwards ? otherNode.Previous : otherNode.Next;
-					}
-					if (backwards)
-					{
-						applications.AddBefore(otherNode, node);
-					}
-					else
-					{
-						applications.AddAfter(otherNode, node);
-					}
-					break;
-				}
-			}
+          _currentlyHighlightedPanel = panel;
+        }
+        else
+        {
+          _currentlyHighlightedPanel = null;
+        }
+      }
+    }
 
-			if (isShown && bar.Monitor == workspace.Monitor && workspace.IsWorkspaceVisible)
-			{
-				ResizeApplicationPanels(left, right, workspace.id - 1);
-			}
-			else
-			{
-				mustResize[workspace.id - 1] = true;
-			}
-		}
+    private void OnApplicationTabClick(object sender, EventArgs e)
+    {
+      _windawesome.SwitchToApplication(
+        _applicationPanels[_bar.Monitor.CurrentVisibleWorkspace.Id - 1].
+          First(tuple => tuple.Item2 == (((Control)sender).Parent as Panel)).Item1);
+    }
 
-		private void OnWorkspaceShown(Workspace workspace)
-		{
-			if (isShown && bar.Monitor == workspace.Monitor)
-			{
-				var workspaceId = workspace.id - 1;
-				if (applicationPanels[workspaceId].Count > 0)
-				{
-					if (mustResize[workspaceId])
-					{
-						ResizeApplicationPanels(left, right, workspaceId);
-					}
-					if (!showSingleApplicationTab)
-					{
-						applicationPanels[workspaceId].ForEach(t => t.Item2.Show());
-					}
-					currentlyHighlightedPanel = null;
-				}
-			}
-		}
+    private void OnWindowTitleOrIconChanged(Workspace workspace, Window window, string newText, Bitmap newIcon)
+    {
+      if (newText != null) // text changed
+      {
+        Tuple<IntPtr, Panel> tuple;
+        var applications = _applicationPanels[workspace.Id - 1];
+        if ((tuple = applications.FirstOrDefault(t => t.Item1 == window.hWnd)) != null)
+        {
+          tuple.Item2.Controls[1].Text = newText;
+        }
+      }
+      else // icon changed
+      {
+        Tuple<IntPtr, Panel> tuple;
+        var applications = _applicationPanels[workspace.Id - 1];
+        if ((tuple = applications.FirstOrDefault(t => t.Item1 == window.hWnd)) != null)
+        {
+          ((PictureBox)tuple.Item2.Controls[0]).Image = newIcon;
+        }
+      }
+    }
 
-		private void OnWorkspaceHidden(Workspace workspace)
-		{
-			if (isShown && bar.Monitor == workspace.Monitor)
-			{
-				var workspaceId = workspace.id - 1;
-				if (applicationPanels[workspaceId].Count > 0)
-				{
-					if (!showSingleApplicationTab)
-					{
-						applicationPanels[workspaceId].ForEach(t => t.Item2.Hide());
-					}
-					else if (currentlyHighlightedPanel != null)
-					{
-						currentlyHighlightedPanel.Hide();
-					}
-				}
-			}
-		}
+    private void OnWorkspaceWindowAdded(Workspace workspace, Window window)
+    {
+      var workspaceId = workspace.Id - 1;
+      var newPanel = CreatePanel(window);
 
-		private void OnWorkspaceMonitorChanged(Workspace workspace, Monitor oldMonitor, Monitor newMonitor)
-		{
-			if (bar.Monitor == oldMonitor || bar.Monitor == newMonitor)
-			{
-				applicationPanels.ForEach(p => p.ForEach(t => t.Item2.Hide()));
+      _applicationPanels[workspaceId].AddFirst(Tuple.Create(window.hWnd, newPanel));
 
-				if (mustResize[bar.Monitor.CurrentVisibleWorkspace.id - 1])
-				{
-					ResizeApplicationPanels(left, right, bar.Monitor.CurrentVisibleWorkspace.id - 1);
-				}
-				if (!showSingleApplicationTab)
-				{
-					applicationPanels[bar.Monitor.CurrentVisibleWorkspace.id - 1].ForEach(t => t.Item2.Show());
-				}
-			}
-		}
+      if (_isShown && _bar.Monitor == workspace.Monitor && workspace.IsWorkspaceVisible)
+      {
+        ResizeApplicationPanels(_left, _right, workspaceId);
+      }
+      else
+      {
+        newPanel.Hide();
+        _mustResize[workspaceId] = true;
+      }
+      _bar.DoSpanWidgetControlsAdded(this, new[] { newPanel });
+    }
 
-		private void OnBarShown()
-		{
-			isShown = true;
-		}
+    private void OnWorkspaceWindowRemoved(Workspace workspace, Window window)
+    {
+      var workspaceId = workspace.Id - 1;
+      var tuple = _applicationPanels[workspaceId].FirstOrDefault(t => t.Item1 == window.hWnd);
+      if (tuple != null)
+      {
+        _applicationPanels[workspaceId].Remove(tuple);
+        if (_isShown && _bar.Monitor == workspace.Monitor && workspace.IsWorkspaceVisible)
+        {
+          ResizeApplicationPanels(_left, _right, workspaceId);
+        }
+        else
+        {
+          _mustResize[workspaceId] = true;
+        }
+        _bar.DoSpanWidgetControlsRemoved(this, new[] { tuple.Item2 });
+      }
+    }
 
-		private void OnBarHidden()
-		{
-			isShown = false;
-		}
+    private void OnWorkspaceWindowOrderChanged(Workspace workspace, Window window, int positions, bool backwards)
+    {
+      var applications = _applicationPanels[workspace.Id - 1];
+      for (var node = applications.First; node != null; node = node.Next)
+      {
+        if (node.Value.Item1 == window.hWnd)
+        {
+          var otherNode = backwards ? node.Previous : node.Next;
+          applications.Remove(node);
+          for (var i = 1; i < positions; i++)
+          {
+            otherNode = backwards ? otherNode.Previous : otherNode.Next;
+          }
+          if (backwards)
+          {
+            applications.AddBefore(otherNode, node);
+          }
+          else
+          {
+            applications.AddAfter(otherNode, node);
+          }
+          break;
+        }
+      }
 
-		#region IWidget Members
+      if (_isShown && _bar.Monitor == workspace.Monitor && workspace.IsWorkspaceVisible)
+      {
+        ResizeApplicationPanels(_left, _right, workspace.Id - 1);
+      }
+      else
+      {
+        _mustResize[workspace.Id - 1] = true;
+      }
+    }
 
-		void IWidget.StaticInitializeWidget(Windawesome windawesome)
-		{
-			ApplicationTabsWidget.windawesome = windawesome;
-		}
+    private void OnWorkspaceShown(Workspace workspace)
+    {
+      if (_isShown && _bar.Monitor == workspace.Monitor)
+      {
+        var workspaceId = workspace.Id - 1;
+        if (_applicationPanels[workspaceId].Count > 0)
+        {
+          if (_mustResize[workspaceId])
+          {
+            ResizeApplicationPanels(_left, _right, workspaceId);
+          }
+          if (!ShowSingleApplicationTab)
+          {
+            _applicationPanels[workspaceId].ForEach(t => t.Item2.Show());
+          }
+          _currentlyHighlightedPanel = null;
+        }
+      }
+    }
 
-		void IWidget.InitializeWidget(Bar bar)
-		{
-			this.bar = bar;
+    private void OnWorkspaceHidden(Workspace workspace)
+    {
+      if (_isShown && _bar.Monitor == workspace.Monitor)
+      {
+        var workspaceId = workspace.Id - 1;
+        if (_applicationPanels[workspaceId].Count > 0)
+        {
+          if (!ShowSingleApplicationTab)
+          {
+            _applicationPanels[workspaceId].ForEach(t => t.Item2.Hide());
+          }
+          else if (_currentlyHighlightedPanel != null)
+          {
+            _currentlyHighlightedPanel.Hide();
+          }
+        }
+      }
+    }
 
-			bar.BarShown += OnBarShown;
-			bar.BarHidden += OnBarHidden;
+    private void OnWorkspaceMonitorChanged(Workspace workspace, Monitor oldMonitor, Monitor newMonitor)
+    {
+      if (_bar.Monitor == oldMonitor || _bar.Monitor == newMonitor)
+      {
+        _applicationPanels.ForEach(p => p.ForEach(t => t.Item2.Hide()));
 
-			Windawesome.WindowTitleOrIconChanged += OnWindowTitleOrIconChanged;
-			Workspace.WorkspaceWindowAdded += OnWorkspaceWindowAdded;
-			Workspace.WorkspaceWindowRemoved += OnWorkspaceWindowRemoved;
-			Workspace.WorkspaceWindowRestored += (_, w) => OnWindowActivated(w.hWnd);
-			Workspace.WindowActivatedEvent += OnWindowActivated;
-			Workspace.WorkspaceHidden += OnWorkspaceHidden;
-			Workspace.WorkspaceShown += OnWorkspaceShown;
-			Workspace.WorkspaceDeactivated += _ => OnWindowActivated(IntPtr.Zero);
-			Workspace.WorkspaceWindowOrderChanged += OnWorkspaceWindowOrderChanged;
-			Workspace.WorkspaceMonitorChanged += OnWorkspaceMonitorChanged;
+        if (_mustResize[_bar.Monitor.CurrentVisibleWorkspace.Id - 1])
+        {
+          ResizeApplicationPanels(_left, _right, _bar.Monitor.CurrentVisibleWorkspace.Id - 1);
+        }
+        if (!ShowSingleApplicationTab)
+        {
+          _applicationPanels[_bar.Monitor.CurrentVisibleWorkspace.Id - 1].ForEach(t => t.Item2.Show());
+        }
+      }
+    }
 
-			currentlyHighlightedPanel = null;
+    private void OnBarShown()
+    {
+      _isShown = true;
+    }
 
-			mustResize = new bool[windawesome.config.Workspaces.Length];
-			applicationPanels = new LinkedList<Tuple<IntPtr, Panel>>[windawesome.config.Workspaces.Length];
-			for (var i = 0; i < windawesome.config.Workspaces.Length; i++)
-			{
-				applicationPanels[i] = new LinkedList<Tuple<IntPtr, Panel>>();
-			}
-		}
+    private void OnBarHidden()
+    {
+      _isShown = false;
+    }
 
-		IEnumerable<Control> ISpanWidget.GetInitialControls()
-		{
-			return Enumerable.Empty<Control>();
-		}
+    #region IWidget Members
 
-		void IWidget.RepositionControls(int left, int right)
-		{
-			this.left = left;
-			this.right = right;
+    void IWidget.StaticInitializeWidget(Windawesome windawesome)
+    {
+      ApplicationTabsWidget._windawesome = windawesome;
+    }
 
-			for (var i = 0; i < windawesome.config.Workspaces.Length; i++)
-			{
-				mustResize[i] = true;
-			}
+    void IWidget.InitializeWidget(Bar bar)
+    {
+      this._bar = bar;
 
-			ResizeApplicationPanels(left, right, bar.Monitor.CurrentVisibleWorkspace.id - 1);
-		}
+      bar.BarShown += OnBarShown;
+      bar.BarHidden += OnBarHidden;
 
-		int IWidget.GetLeft()
-		{
-			return left;
-		}
+      Windawesome.WindowTitleOrIconChanged += OnWindowTitleOrIconChanged;
+      Workspace.WorkspaceWindowAdded += OnWorkspaceWindowAdded;
+      Workspace.WorkspaceWindowRemoved += OnWorkspaceWindowRemoved;
+      Workspace.WorkspaceWindowRestored += (_, w) => OnWindowActivated(w.hWnd);
+      Workspace.WindowActivatedEvent += OnWindowActivated;
+      Workspace.WorkspaceHidden += OnWorkspaceHidden;
+      Workspace.WorkspaceShown += OnWorkspaceShown;
+      Workspace.WorkspaceDeactivated += _ => OnWindowActivated(IntPtr.Zero);
+      Workspace.WorkspaceWindowOrderChanged += OnWorkspaceWindowOrderChanged;
+      Workspace.WorkspaceMonitorChanged += OnWorkspaceMonitorChanged;
 
-		int IWidget.GetRight()
-		{
-			return right;
-		}
+      _currentlyHighlightedPanel = null;
 
-		void IWidget.StaticDispose()
-		{
-		}
+      _mustResize = new bool[_windawesome.config.Workspaces.Length];
+      _applicationPanels = new LinkedList<Tuple<IntPtr, Panel>>[_windawesome.config.Workspaces.Length];
+      for (var i = 0; i < _windawesome.config.Workspaces.Length; i++)
+      {
+        _applicationPanels[i] = new LinkedList<Tuple<IntPtr, Panel>>();
+      }
+    }
 
-		void IWidget.Dispose()
-		{
-		}
+    IEnumerable<Control> ISpanWidget.GetInitialControls()
+    {
+      return Enumerable.Empty<Control>();
+    }
 
-		void IWidget.Refresh()
-		{
-		}
+    void IWidget.RepositionControls(int left, int right)
+    {
+      this._left = left;
+      this._right = right;
 
-		#endregion
-	}
+      for (var i = 0; i < _windawesome.config.Workspaces.Length; i++)
+      {
+        _mustResize[i] = true;
+      }
+
+      ResizeApplicationPanels(left, right, _bar.Monitor.CurrentVisibleWorkspace.Id - 1);
+    }
+
+    int IWidget.GetLeft()
+    {
+      return _left;
+    }
+
+    int IWidget.GetRight()
+    {
+      return _right;
+    }
+
+    void IWidget.StaticDispose()
+    {
+    }
+
+    void IWidget.Dispose()
+    {
+    }
+
+    void IWidget.Refresh()
+    {
+    }
+
+    #endregion
+  }
 }

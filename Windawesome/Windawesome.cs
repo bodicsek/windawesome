@@ -107,7 +107,7 @@ namespace Windawesome
       CurrentWorkspace = config.StartingWorkspaces.First(w => w.Monitor.screen.Primary);
 
       topmostWindows = new WindowBase[config.Workspaces.Length];
-      Workspace.WindowActivatedEvent += h => topmostWindows[CurrentWorkspace.id - 1] = CurrentWorkspace.GetWindow(h) ?? new WindowBase(h);
+      Workspace.WindowActivatedEvent += h => topmostWindows[CurrentWorkspace.Id - 1] = CurrentWorkspace.GetWindow(h) ?? new WindowBase(h);
 
       // add workspaces to their corresponding monitors
       monitors.ForEach(m => config.Workspaces.Where(w => w.Monitor == m).ForEach(m.AddWorkspace)); // n ^ 2 but hopefully fast enough
@@ -136,7 +136,7 @@ namespace Windawesome
       {
         workspace.GetWindows().ForEach(w => windowsToHide.Add(w));
         workspace.Initialize();
-        topmostWindows[workspace.id - 1] = workspace.GetWindows().FirstOrDefault(w => !NativeMethods.IsIconic(w.hWnd)) ?? new WindowBase(NativeMethods.shellWindow);
+        topmostWindows[workspace.Id - 1] = workspace.GetWindows().FirstOrDefault(w => !NativeMethods.IsIconic(w.hWnd)) ?? new WindowBase(NativeMethods.shellWindow);
       }
       windowsToHide.ExceptWith(config.StartingWorkspaces.SelectMany(ws => ws.GetWindows()));
       var winPosInfo = NativeMethods.BeginDeferWindowPos(windowsToHide.Count);
@@ -280,7 +280,7 @@ namespace Windawesome
         IEnumerable<ProgramRule.Rule> matchingRules = programRule.rules;
         var workspacesCount = programRule.rules.Length;
         var hasWorkspaceZeroRule = matchingRules.Any(r => r.workspace == 0);
-        var hasCurrentWorkspaceRule = matchingRules.Any(r => r.workspace == CurrentWorkspace.id);
+        var hasCurrentWorkspaceRule = matchingRules.Any(r => r.workspace == CurrentWorkspace.Id);
         // matchingRules.workspaces could be { 0, 1 } and you could be at workspace 1.
         // Then, "hWnd" would be added twice if it were not for this check
         // TODO: it could be added twice on two different workspaces which are shown at the same time
@@ -376,7 +376,7 @@ namespace Windawesome
               switch (programRule.onWindowCreatedOnInactiveWorkspaceAction)
               {
                 case OnWindowCreatedOnWorkspaceAction.MoveToTop:
-                  topmostWindows[workspace.id - 1] = window;
+                  topmostWindows[workspace.Id - 1] = window;
                   break;
               }
             }
@@ -395,11 +395,11 @@ namespace Windawesome
             switch (programRule.onWindowCreatedAction)
             {
               case OnWindowCreatedOrShownAction.SwitchToWindowsWorkspace:
-                SwitchToWorkspace(list.First.Value.Item1.id, false);
+                SwitchToWorkspace(list.First.Value.Item1.Id, false);
                 OnWindowCreatedOnCurrentWorkspace(hWnd, programRule);
                 break;
               case OnWindowCreatedOrShownAction.MoveWindowToCurrentWorkspace:
-                ChangeApplicationToWorkspace(hWnd, CurrentWorkspace.id, matchingRules.First().workspace);
+                ChangeApplicationToWorkspace(hWnd, CurrentWorkspace.Id, matchingRules.First().workspace);
                 OnWindowCreatedOnCurrentWorkspace(hWnd, programRule);
                 break;
             }
@@ -506,7 +506,7 @@ namespace Windawesome
     {
       if (follow)
       {
-        SwitchToWorkspace(toWorkspace.id, false);
+        SwitchToWorkspace(toWorkspace.Id, false);
         ActivateWindow(window);
       }
       else if (fromWorkspace.IsCurrentWorkspace)
@@ -542,7 +542,7 @@ namespace Windawesome
         }
       }
 
-      var hideWindows = oldWorkspace.sharedWindowsCount > 0 && newWorkspace.sharedWindowsCount > 0 ?
+      var hideWindows = oldWorkspace.SharedWindowsCount > 0 && newWorkspace.SharedWindowsCount > 0 ?
   oldWorkspace.GetWindows().Except(showWindows) : oldWorkspace.GetWindows();
       // if the window is not visible we shouldn't add it to hiddenApplications as EVENT_OBJECT_HIDE won't be sent
       foreach (var window in hideWindows.Where(Utilities.IsVisibleAndNotHung))
@@ -580,7 +580,7 @@ namespace Windawesome
 
     private IntPtr DoForTopmostWindowForWorkspace(Workspace workspace, Action<WindowBase> action)
     {
-      var window = topmostWindows[workspace.id - 1];
+      var window = topmostWindows[workspace.Id - 1];
       if (window == null || !NativeMethods.IsWindowVisible(window.hWnd) || NativeMethods.IsIconic(window.hWnd) || workspace.GetWindow(window.hWnd) == null)
       {
         NativeMethods.EnumWindows((hWnd, _) =>
@@ -589,7 +589,7 @@ namespace Windawesome
               {
                 return true;
               }
-              if ((topmostWindows[workspace.id - 1] = workspace.GetWindow(hWnd)) != null)
+              if ((topmostWindows[workspace.Id - 1] = workspace.GetWindow(hWnd)) != null)
               {
                 // the workspace contains this window so make it the topmost one
                 return false;
@@ -598,18 +598,18 @@ namespace Windawesome
               workspace.Monitor.temporarilyShownWindows.Contains(hWnd))
               {
                 // the window is not a managed-by-another-visible-workspace one so make it the topmost one
-                topmostWindows[workspace.id - 1] = new WindowBase(hWnd);
+                topmostWindows[workspace.Id - 1] = new WindowBase(hWnd);
                 return false;
               }
               return true;
             }, IntPtr.Zero);
 
-        if (topmostWindows[workspace.id - 1] == null)
+        if (topmostWindows[workspace.Id - 1] == null)
         {
-          topmostWindows[workspace.id - 1] = new WindowBase(NativeMethods.shellWindow);
+          topmostWindows[workspace.Id - 1] = new WindowBase(NativeMethods.shellWindow);
         }
 
-        window = topmostWindows[workspace.id - 1];
+        window = topmostWindows[workspace.Id - 1];
       }
 
       action(window);
@@ -646,7 +646,7 @@ namespace Windawesome
     {
       if (monitors.Length == 1 || monitors.All(m => m.CurrentVisibleWorkspace.IsCurrentWorkspace || m.CurrentVisibleWorkspace.GetWindowsCount() == 0))
       {
-        if (topmostWindows[CurrentWorkspace.id - 1].hWnd == hWnd)
+        if (topmostWindows[CurrentWorkspace.Id - 1].hWnd == hWnd)
         {
           while (NativeMethods.GetForegroundWindow() == hWnd)
           {
@@ -697,7 +697,7 @@ namespace Windawesome
       CurrentWorkspace.Reposition();
 
       // finally switch to the workspace
-      SwitchToWorkspace(workspace.id);
+      SwitchToWorkspace(workspace.Id);
 
       Workspace.DoWorkspaceMonitorChanged(workspace, newWorkspaceMonitor, currentWorkspaceMonitor);
       Workspace.DoWorkspaceMonitorChanged(CurrentWorkspace, currentWorkspaceMonitor, newWorkspaceMonitor);
@@ -743,7 +743,7 @@ namespace Windawesome
       var oldWorkspace = fromWorkspaceId == 0 ? CurrentWorkspace : config.Workspaces[fromWorkspaceId - 1];
       var newWorkspace = toWorkspaceId == 0 ? CurrentWorkspace : config.Workspaces[toWorkspaceId - 1];
 
-      if (newWorkspace.id != oldWorkspace.id)
+      if (newWorkspace.Id != oldWorkspace.Id)
       {
         Window window;
         LinkedList<Tuple<Workspace, Window>> list;
@@ -778,7 +778,7 @@ namespace Windawesome
       var oldWorkspace = fromWorkspaceId == 0 ? CurrentWorkspace : config.Workspaces[fromWorkspaceId - 1];
       var newWorkspace = toWorkspaceId == 0 ? CurrentWorkspace : config.Workspaces[toWorkspaceId - 1];
 
-      if (newWorkspace.id != oldWorkspace.id)
+      if (newWorkspace.Id != oldWorkspace.Id)
       {
         Window window;
         LinkedList<Tuple<Workspace, Window>> list;
@@ -794,7 +794,7 @@ namespace Windawesome
           }
 
           list.AddFirst(Tuple.Create(newWorkspace, newWindow));
-          list.Where(t => ++t.Item2.WorkspacesCount == 2).ForEach(t => t.Item1.sharedWindowsCount++);
+          list.Where(t => ++t.Item2.WorkspacesCount == 2).ForEach(t => t.Item1.SharedWindowsCount++);
 
           FollowWindow(oldWorkspace, newWorkspace, follow, newWindow);
         }
@@ -857,19 +857,19 @@ namespace Windawesome
     public void SwitchToNextMonitor()
     {
       var nextMonitorIndex = (CurrentWorkspace.Monitor.monitorIndex + 1) % monitors.Length;
-      SwitchToWorkspace(monitors[nextMonitorIndex].CurrentVisibleWorkspace.id);
+      SwitchToWorkspace(monitors[nextMonitorIndex].CurrentVisibleWorkspace.Id);
     }
 
     public void SwitchToPreviousMonitor()
     {
       var previousMonitorIndex = (CurrentWorkspace.Monitor.monitorIndex + monitors.Length - 1) % monitors.Length;
-      SwitchToWorkspace(monitors[previousMonitorIndex].CurrentVisibleWorkspace.id);
+      SwitchToWorkspace(monitors[previousMonitorIndex].CurrentVisibleWorkspace.Id);
     }
 
     public void SwitchToWorkspace(int workspaceId, bool setForeground = true)
     {
       var newWorkspace = workspaceId == 0 ? CurrentWorkspace : config.Workspaces[workspaceId - 1];
-      if (newWorkspace.id != CurrentWorkspace.id)
+      if (newWorkspace.Id != CurrentWorkspace.Id)
       {
         if (newWorkspace.IsWorkspaceVisible)
         {
@@ -924,14 +924,14 @@ namespace Windawesome
             }
 
             // remove windows from ALT-TAB menu and Taskbar
-            if (CurrentWorkspace.hideFromAltTabWhenOnInactiveWorkspaceCount > 0)
+            if (CurrentWorkspace.HideFromAltTabWhenOnInactiveWorkspaceCount > 0)
             {
               CurrentWorkspace.GetWindows().Where(w => w.hideFromAltTabAndTaskbarWhenOnInactiveWorkspace).ForEach(w => w.ShowInAltTabAndTaskbar(false));
             }
           }
 
           // add windows to ALT-TAB menu and Taskbar
-          if (newWorkspace.hideFromAltTabWhenOnInactiveWorkspaceCount > 0)
+          if (newWorkspace.HideFromAltTabWhenOnInactiveWorkspaceCount > 0)
           {
             newWorkspace.GetWindows().Where(w => w.hideFromAltTabAndTaskbarWhenOnInactiveWorkspace).ForEach(w => w.ShowInAltTabAndTaskbar(true));
           }
@@ -955,7 +955,7 @@ namespace Windawesome
           CurrentWorkspace.IsCurrentWorkspace = false;
 
           // remove windows from ALT-TAB menu and Taskbar
-          if (CurrentWorkspace.hideFromAltTabWhenOnInactiveWorkspaceCount > 0)
+          if (CurrentWorkspace.HideFromAltTabWhenOnInactiveWorkspaceCount > 0)
           {
             CurrentWorkspace.GetWindows().Where(w => w.hideFromAltTabAndTaskbarWhenOnInactiveWorkspace).ForEach(w => w.ShowInAltTabAndTaskbar(false));
           }
@@ -987,7 +987,7 @@ namespace Windawesome
           workspace.IsCurrentWorkspace = true;
 
           // add windows to ALT-TAB menu and Taskbar
-          if (workspace.hideFromAltTabWhenOnInactiveWorkspaceCount > 0)
+          if (workspace.HideFromAltTabWhenOnInactiveWorkspaceCount > 0)
           {
             workspace.GetWindows().Where(w => w.hideFromAltTabAndTaskbarWhenOnInactiveWorkspace).ForEach(w => w.ShowInAltTabAndTaskbar(true));
           }
@@ -1010,7 +1010,7 @@ namespace Windawesome
     public void AddBarToWorkspace(IBar bar, int workspaceId = 0, bool top = true, int position = 0)
     {
       var workspace = workspaceId == 0 ? CurrentWorkspace : config.Workspaces[workspaceId - 1];
-      var bars = top ? workspace.barsAtTop[bar.Monitor.monitorIndex] : workspace.barsAtBottom[bar.Monitor.monitorIndex];
+      var bars = top ? workspace.AllBarsAtTop[bar.Monitor.monitorIndex] : workspace.AllBarsAtBottom[bar.Monitor.monitorIndex];
       if (!bars.Contains(bar))
       {
         if (workspace.IsWorkspaceVisible)
@@ -1047,16 +1047,16 @@ namespace Windawesome
     public void RemoveBarFromWorkspace(IBar bar, int workspaceId = 0)
     {
       var workspace = workspaceId == 0 ? CurrentWorkspace : config.Workspaces[workspaceId - 1];
-      if (workspace.barsAtTop[bar.Monitor.monitorIndex].Contains(bar) || workspace.barsAtBottom[bar.Monitor.monitorIndex].Contains(bar))
+      if (workspace.AllBarsAtTop[bar.Monitor.monitorIndex].Contains(bar) || workspace.AllBarsAtBottom[bar.Monitor.monitorIndex].Contains(bar))
       {
         if (workspace.IsWorkspaceVisible)
         {
           workspace.Monitor.ShowHideAppBars(workspace, null);
         }
 
-        if (!workspace.barsAtTop[bar.Monitor.monitorIndex].Remove(bar))
+        if (!workspace.AllBarsAtTop[bar.Monitor.monitorIndex].Remove(bar))
         {
-          workspace.barsAtBottom[bar.Monitor.monitorIndex].Remove(bar);
+          workspace.AllBarsAtBottom[bar.Monitor.monitorIndex].Remove(bar);
         }
 
         // remove and then add the workspace so the AppBars can be recreated
@@ -1133,7 +1133,7 @@ namespace Windawesome
         if (list.All(t => !t.Item1.IsCurrentWorkspace))
         {
           var visibleWorkspace = list.Select(t => t.Item1).FirstOrDefault(ws => ws.IsWorkspaceVisible);
-          SwitchToWorkspace(visibleWorkspace != null ? visibleWorkspace.id : list.First.Value.Item1.id, false);
+          SwitchToWorkspace(visibleWorkspace != null ? visibleWorkspace.Id : list.First.Value.Item1.Id, false);
         }
         ActivateWindow(list.First.Value.Item2);
       }
@@ -1278,7 +1278,7 @@ namespace Windawesome
 
             // this, however, is not good for unmanaged windows, which won't be activated because of
             // AddWindowToWorkspace and their activation won't be noted when created
-            if (topmostWindows[CurrentWorkspace.id - 1].hWnd != hWnd &&
+            if (topmostWindows[CurrentWorkspace.Id - 1].hWnd != hWnd &&
             NativeMethods.IsWindowVisible(hWnd) && !hiddenApplications.Contains(hWnd))
             {
               if (hWnd != NativeMethods.shellWindow)
@@ -1328,7 +1328,7 @@ namespace Windawesome
           }
           else
           {
-            SwitchToWorkspace(workspace.id, false);
+            SwitchToWorkspace(workspace.Id, false);
           }
         }
         else
@@ -1339,7 +1339,7 @@ namespace Windawesome
               SwitchToApplication(window.hWnd);
               break;
             case OnWindowCreatedOrShownAction.MoveWindowToCurrentWorkspace:
-              ChangeApplicationToWorkspace(window.hWnd, CurrentWorkspace.id, list.First.Value.Item1.id);
+              ChangeApplicationToWorkspace(window.hWnd, CurrentWorkspace.Id, list.First.Value.Item1.Id);
               break;
             case OnWindowCreatedOrShownAction.TemporarilyShowWindowOnCurrentWorkspace:
               CurrentWorkspace.Monitor.temporarilyShownWindows.Add(window.hWnd);

@@ -7,34 +7,43 @@ namespace Windawesome.Widgets
 {
 	public sealed class LayoutWidget : IFixedWidthWidget
 	{
-		private Label layoutLabel;
-		private readonly Color backgroundColor;
-		private readonly Color foregroundColor;
-		private readonly Action onClick;
-		private Bar bar;
-		private bool isLeft;
+		private Label _layoutLabel;
+		private Bar _bar;
+		private bool _isLeft;
+
+
+    public Color BackgroundColor { get; set; }
+
+    public Color ForegroundColor { get; set; }
+
+    public Action OnClick { get; set; }
+
+
+    public LayoutWidget()
+    {
+    }
 
 		public LayoutWidget(Color? backgroundColor = null, Color? foregroundColor = null, Action onClick = null)
 		{
-			this.backgroundColor = backgroundColor ?? Color.FromArgb(0x99, 0xB4, 0xD1);
-			this.foregroundColor = foregroundColor ?? Color.Black;
-
-			this.onClick = onClick;
+			BackgroundColor = backgroundColor ?? Color.FromArgb(0x99, 0xB4, 0xD1);
+			ForegroundColor = foregroundColor ?? Color.Black;
+			OnClick = onClick;
 		}
+
 
 		private void OnWorkspaceLayoutChanged(Workspace workspace)
 		{
-			if (workspace.Monitor == bar.Monitor && workspace.IsWorkspaceVisible)
+			if (workspace.Monitor == _bar.Monitor && workspace.IsWorkspaceVisible)
 			{
-				var oldLeft = layoutLabel.Left;
-				var oldRight = layoutLabel.Right;
-				var oldWidth = layoutLabel.Width;
-				layoutLabel.Text = workspace.Layout.LayoutSymbol();
-				layoutLabel.Width = TextRenderer.MeasureText(layoutLabel.Text, layoutLabel.Font).Width;
-				if (layoutLabel.Width != oldWidth)
+				var oldLeft = _layoutLabel.Left;
+				var oldRight = _layoutLabel.Right;
+				var oldWidth = _layoutLabel.Width;
+				_layoutLabel.Text = workspace.Layout.LayoutSymbol();
+				_layoutLabel.Width = TextRenderer.MeasureText(_layoutLabel.Text, _layoutLabel.Font).Width;
+				if (_layoutLabel.Width != oldWidth)
 				{
 					this.RepositionControls(oldLeft, oldRight);
-					bar.DoFixedWidthWidgetWidthChanged(this);
+					_bar.DoFixedWidthWidgetWidthChanged(this);
 				}
 			}
 		}
@@ -47,7 +56,7 @@ namespace Windawesome.Widgets
 
 		void IWidget.InitializeWidget(Bar bar)
 		{
-			this.bar = bar;
+			this._bar = bar;
 
 			bar.BarShown += () => OnWorkspaceLayoutChanged(bar.Monitor.CurrentVisibleWorkspace);
 
@@ -55,36 +64,36 @@ namespace Windawesome.Widgets
 			Workspace.WorkspaceShown += OnWorkspaceLayoutChanged;
 			Workspace.WorkspaceLayoutChanged += (ws, _) => OnWorkspaceLayoutChanged(ws);
 
-			layoutLabel = bar.CreateLabel("", 0);
-			layoutLabel.TextAlign = ContentAlignment.MiddleCenter;
-			layoutLabel.BackColor = backgroundColor;
-			layoutLabel.ForeColor = foregroundColor;
-			if (onClick != null)
+			_layoutLabel = bar.CreateLabel("", 0);
+			_layoutLabel.TextAlign = ContentAlignment.MiddleCenter;
+			_layoutLabel.BackColor = BackgroundColor;
+			_layoutLabel.ForeColor = ForegroundColor;
+			if (OnClick != null)
 			{
-				layoutLabel.Click += (unused1, unused2) => onClick();
+				_layoutLabel.Click += (unused1, unused2) => OnClick();
 			}
 		}
 
 		IEnumerable<Control> IFixedWidthWidget.GetInitialControls(bool isLeft)
 		{
-			this.isLeft = isLeft;
+			this._isLeft = isLeft;
 
-			return new Control[] { layoutLabel };
+			return new Control[] { _layoutLabel };
 		}
 
 		public void RepositionControls(int left, int right)
 		{
-			this.layoutLabel.Location = this.isLeft ? new Point(left, 0) : new Point(right - this.layoutLabel.Width, 0);
+			this._layoutLabel.Location = this._isLeft ? new Point(left, 0) : new Point(right - this._layoutLabel.Width, 0);
 		}
 
 		int IWidget.GetLeft()
 		{
-			return layoutLabel.Left;
+			return _layoutLabel.Left;
 		}
 
 		int IWidget.GetRight()
 		{
-			return layoutLabel.Right;
+			return _layoutLabel.Right;
 		}
 
 		void IWidget.StaticDispose()
