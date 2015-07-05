@@ -1,66 +1,58 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using Microsoft.Scripting;
 
 namespace WindawesomeIrb
 {
-  public class Test
-  {
-    public string Name { get; set; }
-
-    public int Value { get; set; }
-
-    public Test()
-    {
-    }
-
-    public Test(string name, int value)
-    {
-      Name = name;
-      Value = value;
-    }
-  }
-
   public static class Irb
   {
-    private static Engine _engine;
-    private static string _configPath = "Config/";
+    private static IronRubyEngine _engine;
+    private static DirectoryInfo _configPath = new DirectoryInfo("Config");
 
     public static void Main(string[] args)
     {
       Console.WriteLine("Windawesome irb...");
-      _engine = new Engine(new Windawesome.Windawesome());
-      _engine.InitializeEnironment();
+      _engine = new IronRubyEngine();
+      _engine.InitializeWindawesomeEnironment();
       _engine.Repl();
     }
 
     public static string SetConfigPath(string configPath)
     {
-      _configPath = configPath.EndsWith("\\") || configPath.EndsWith("/")
-                    ? configPath
-                    : configPath + "/";
-      return _configPath;
+      var dirInfo = new DirectoryInfo(configPath);
+      if (dirInfo.Exists)
+      {
+        _configPath = dirInfo;
+        return dirInfo.FullName; 
+      }
+      throw new FileNotFoundException("The config path was not found", dirInfo.FullName);
     }
 
-    public static void LoadConfig(string configFilename)
+    public static string LoadConfig(string configFilenameWildcardPattern)
     {
-      LoadFileWithErrorHandling(() =>
+      var configFileInfo = _configPath.GetFiles(configFilenameWildcardPattern).FirstOrDefault();
+      if (configFileInfo != null && configFileInfo.Exists)
+      {        
+        return LoadFile(configFileInfo.FullName);
+      }
+      throw new FileNotFoundException(string.Format("There is no matching config file in directory {0}", _configPath.FullName));
+    }
+
+    public static string LoadFile(string fullPath)
+    {
+      return LoadFileWithErrorHandling(() =>
         {
-          var fileInfo = new FileInfo(_configPath + configFilename);
-          _engine.Execute(fileInfo.FullName);
+          _engine.Execute(fullPath);
+          return fullPath;
         });
     }
 
-    public static void LoadFile(string fullPath)
-    {
-      LoadFileWithErrorHandling(() => _engine.Execute(fullPath));
-    }
-
-    private static void LoadFileWithErrorHandling(Action action)
+    private static string LoadFileWithErrorHandling(Func<string> action)
     {
       try
       {
-        action();
+        return action();
       }
       catch (SyntaxErrorException e)
       {
@@ -71,6 +63,7 @@ namespace WindawesomeIrb
       {
         Console.WriteLine(e.Message);
       }
+      return string.Empty;
     }
   }
 }

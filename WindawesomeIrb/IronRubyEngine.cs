@@ -7,21 +7,24 @@ using System.IO;
 
 namespace WindawesomeIrb
 {
-  class Engine
+  class IronRubyEngine
   {
     private ScriptEngine _engine;
     private ScriptScope _scope;
 
-    public Engine(Windawesome.Windawesome windawesome)
+    public IronRubyEngine()
     {
       _engine = Ruby.CreateEngine();
       _scope = _engine.CreateScope();
-      _scope.SetVariable("config", windawesome.config);
-      _scope.SetVariable("windawesome", windawesome);
     }
 
-    public void InitializeEnironment()
-    {      
+    public void InitializeWindawesomeEnironment()
+    {
+      var windawesome = new Windawesome.Windawesome();
+
+      _scope.SetVariable("config", windawesome.config);
+      _scope.SetVariable("windawesome", windawesome);
+
       var searchPaths = _engine.GetSearchPaths().ToList();
       searchPaths.Add(Environment.CurrentDirectory);
       _engine.SetSearchPaths(searchPaths);
