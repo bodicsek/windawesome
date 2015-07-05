@@ -24,8 +24,8 @@ config.bars =
             
             [
               
-              WorkspacesWidget.new([Color.light_sea_green, Color.yellow, Color.yellow, Color.yellow, Color.yellow].to_clr_seq(Color),
-                                   [Color.black          , Color.black , Color.black , Color.black , Color.black ].to_clr_seq(Color),
+              WorkspacesWidget.new(Color.light_sea_green,
+                                   Color.black,
                                    Color.dark_orange,
                                    Color.black,
                                    Color.light_sea_green,

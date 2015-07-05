@@ -9,8 +9,8 @@ namespace Windawesome.Widgets
 	public sealed class WorkspacesWidget : IFixedWidthWidget
 	{
 		private Label[] workspaceLabels;
-		private readonly Color[] normalForegroundColor;
-		private readonly Color[] normalBackgroundColor;
+		private readonly Color normalForegroundColor;
+		private readonly Color normalBackgroundColor;
 		private readonly Color highlightedForegroundColor;
 		private readonly Color highlightedBackgroundColor;
 		private readonly Color highlightedInactiveForegroundColor;
@@ -28,29 +28,13 @@ namespace Windawesome.Widgets
 		private delegate void WorkFlashingStopped(Workspace workspace);
 		private static event WorkFlashingStopped OnWorkspaceFlashingStopped;
 
-		public WorkspacesWidget(IEnumerable<Color> normalForegroundColor = null, IEnumerable<Color> normalBackgroundColor = null,
+		public WorkspacesWidget(Color? normalForegroundColor = null, Color? normalBackgroundColor = null,
 			Color? highlightedForegroundColor = null, Color? highlightedBackgroundColor = null,
 			Color? highlightedInactiveForegroundColor = null, Color? highlightedInactiveBackgroundColor = null,
 			Color? flashingForegroundColor = null, Color? flashingBackgroundColor = null, bool flashWorkspaces = true)
 		{
-			this.normalForegroundColor = normalForegroundColor != null ? normalForegroundColor.ToArray() : new[]
-				{
-					Color.Black, Color.Black, Color.Black, Color.Black, Color.Black,
-					Color.White, Color.White, Color.White, Color.White, Color.White
-				};
-			this.normalBackgroundColor = normalBackgroundColor != null ? normalBackgroundColor.ToArray() : new[]
-				{
-					Color.FromArgb(0xF0, 0xF0, 0xF0),
-					Color.FromArgb(0xD8, 0xD8, 0xD8),
-					Color.FromArgb(0xC0, 0xC0, 0xC0),
-					Color.FromArgb(0xA8, 0xA8, 0xA8),
-					Color.FromArgb(0x90, 0x90, 0x90),
-					Color.FromArgb(0x78, 0x78, 0x78),
-					Color.FromArgb(0x60, 0x60, 0x60),
-					Color.FromArgb(0x48, 0x48, 0x48),
-					Color.FromArgb(0x30, 0x30, 0x30),
-					Color.FromArgb(0x18, 0x18, 0x18)
-				};
+			this.normalForegroundColor = normalForegroundColor ?? Color.White;
+			this.normalBackgroundColor = normalBackgroundColor ?? Color.Black;
 			this.highlightedForegroundColor = highlightedForegroundColor ?? Color.White;
 			this.highlightedBackgroundColor = highlightedBackgroundColor ?? Color.FromArgb(0x33, 0x99, 0xFF);
 			this.highlightedInactiveForegroundColor = highlightedInactiveForegroundColor ?? Color.White;
@@ -93,14 +77,9 @@ namespace Windawesome.Widgets
 				workspaceLabel.ForeColor = highlightedInactiveForegroundColor;
 			}
 			else
-			{
-				var count = workspace.GetWindowsCount();
-				if (count > 9)
-				{
-					count = 9;
-				}
-				workspaceLabel.BackColor = normalBackgroundColor[count];
-				workspaceLabel.ForeColor = normalForegroundColor[count];
+			{				
+				workspaceLabel.BackColor = normalBackgroundColor;
+				workspaceLabel.ForeColor = normalForegroundColor;
 			}
 		}
 
