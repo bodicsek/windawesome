@@ -9,7 +9,7 @@ namespace WindawesomeIrb
 {
   class IronRubyEngine
   {
-    private ScriptEngine _engine;
+    private readonly ScriptEngine _engine;
     private ScriptScope _scope;
 
     public IronRubyEngine()
@@ -29,24 +29,19 @@ namespace WindawesomeIrb
       searchPaths.Add(Environment.CurrentDirectory);
       _engine.SetSearchPaths(searchPaths);
 
-      AppDomain.CurrentDomain.GetAssemblies().ToList().ForEach(asm =>
-      {
-        LoadAssemblyIntoEngine(asm);
-      });
-      LoadAssemblyIntoEngine(Assembly.Load("System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"));
+      AppDomain.CurrentDomain.GetAssemblies().ToList().ForEach(LoadAssemblyIntoEngine);
+      //LoadAssemblyIntoEngine(Assembly.Load("System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"));
 
       var files = Directory.EnumerateFiles("Layouts").Concat(
                   Directory.EnumerateFiles("Widgets").Concat(
                   Directory.EnumerateFiles("Plugins")))
-                  .Select(fileName => new FileInfo(fileName));
+                  .Select(fileName => new FileInfo(fileName))
+                  .ToList();
 
       files.Where(fi => fi.Extension == ".dll")
             .Select(fi => Assembly.LoadFrom(fi.FullName))
             .ToList()
-            .ForEach(asm =>
-            {
-              LoadAssemblyIntoEngine(asm);
-            });
+            .ForEach(LoadAssemblyIntoEngine);
 
       files.Where(fi => fi.Extension == ".rb")
             .ToList()
