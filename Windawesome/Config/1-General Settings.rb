@@ -119,28 +119,31 @@ config.workspaces =
   [
     
     Workspace.new(:monitor                   => windawesome.monitors[0],
+                  :layout                    => TileLayout.new,
+                  :bars_at_top               => [config.bars[0]].to_clr_a(IBar),
+                  :reposition_on_switched_to => true,
+                  :name                      => "main"),
+    
+    Workspace.new(:monitor                   => windawesome.monitors[0],
                   :layout                    => FullScreenLayout.new,
                   :bars_at_top               => [config.bars[0]].to_clr_a(IBar),
+                  :reposition_on_switched_to => true,
                   :name                      => "dev"),
-    
+
     Workspace.new(:monitor                   => windawesome.monitors[0],
                   :layout                    => TileLayout.new,
                   :bars_at_top               => [config.bars[0]].to_clr_a(IBar),
                   :reposition_on_switched_to => true,
                   :name                      => "emacs"),
-
+    
     Workspace.new(:monitor                   => windawesome.monitors[0],
                   :layout                    => FullScreenLayout.new,
                   :bars_at_top               => [config.bars[0]].to_clr_a(IBar),
+                  :reposition_on_switched_to => true,
                   :name                      => "web"),
     
-    Workspace.new(:monitor                   => windawesome.monitors[0],
-                  :layout                    => FullScreenLayout.new,
-                  :bars_at_top               => [config.bars[0]].to_clr_a(IBar),
-                  :name                      => "mail"),
-    
     Workspace.new(:monitor                   => windawesome.monitors[1],
-                  :layout                    => FullScreenLayout.new,
+                  :layout                    => TileLayout.new,
                   :bars_at_top               => [config.bars[1]].to_clr_a(IBar),
                   :name                      => "extra"),
     
