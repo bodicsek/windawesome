@@ -58,3 +58,13 @@
 /Windawesome/obj/x86
 /WindawesomeIrb/obj
 /Windawesome/Windawesome.csproj.user
+/Native/GlobalShellHook/bin/Win32/Debug
+/Native/Helpers/bin/Win32/Debug
+/Native/SystemTrayHook/bin/Win32/Debug
+/ipch/systemtrayhook-a9fd6335
+/Native/WindowSubclassing/bin/Win32/Debug
+/Native/GlobalShellHook/bin/Win32/Release
+/Native/Helpers/bin/Win32/Release
+/Native/SystemTrayHook/bin/Win32/Release
+/Native/WindowSubclassing/bin/Win32/Release/WindowSu.67670ECC.tlog
+/Native/WindowSubclassing/bin/Win32/Release
