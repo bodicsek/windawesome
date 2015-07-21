@@ -214,9 +214,6 @@
     </ClCompile>
     <ClCompile Include="Helpers.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Helpers.rc" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

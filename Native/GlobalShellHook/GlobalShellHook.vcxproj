@@ -237,9 +237,6 @@
     </ClCompile>
     <ClCompile Include="GlobalShellHook.c" />
   </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="GlobalShellHook.rc" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

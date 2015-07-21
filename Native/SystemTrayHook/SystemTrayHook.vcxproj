@@ -234,9 +234,6 @@
     </ClCompile>
     <ClCompile Include="SystemTrayHook.c" />
   </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="SystemTrayHook.rc" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
