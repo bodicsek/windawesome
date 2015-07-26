@@ -6,162 +6,169 @@ using System.Windows.Forms;
 
 namespace Windawesome.Widgets
 {
-	public sealed class LanguageBarWidget : IFixedWidthWidget
-	{
-		private uint globalShellHookMessage;
-		private Bar bar;
+  public sealed class LanguageBarWidget : IFixedWidthWidget
+  {
+    private readonly static StringBuilder stringBuilder = new StringBuilder(85);
 
-		private Label label;
-		private bool isLeft;
-		private readonly Color backgroundColor;
-		private readonly Color foregroundColor;
-		private readonly static StringBuilder stringBuilder = new StringBuilder(85);
+    private uint globalShellHookMessage;
+    private Bar bar;
+    private Label label;
+    private bool isLeft;
 
-		private delegate void InputLanguageChangedEventHandler(IntPtr hWnd);
-		private static event InputLanguageChangedEventHandler InputLanguageChanged;
+    public Color BackgroundColor { get; set; }
+    public Color ForegroundColor { get; set; } 
 
-		public LanguageBarWidget(Color? backgroundColor = null, Color? foregroundColor = null)
-		{
-			this.backgroundColor = backgroundColor ?? Color.White;
-			this.foregroundColor = foregroundColor ?? Color.Black;
-		}
+    private delegate void InputLanguageChangedEventHandler(IntPtr hWnd);
+    private static event InputLanguageChangedEventHandler InputLanguageChanged;
 
-		private static bool OnGlobalShellHookMessage(ref Message m)
-		{
-			InputLanguageChanged(NativeMethods.GetForegroundWindow());
-			return true;
-		}
+    public LanguageBarWidget()
+    {
+      BackgroundColor = Color.White;
+      ForegroundColor = Color.Black;
+    }
 
-		private static string GetWindowKeyboardLanguage(IntPtr hWnd)
-		{
-			var keyboardLayout = NativeMethods.GetKeyboardLayout(
-				NativeMethods.GetWindowThreadProcessId(hWnd, IntPtr.Zero));
+    public LanguageBarWidget(Color? backgroundColor = null, Color? foregroundColor = null)
+    {
+      BackgroundColor = backgroundColor ?? Color.White;
+      ForegroundColor = foregroundColor ?? Color.Black;
+    }
 
-			var localeId = unchecked((uint) (short) keyboardLayout.ToInt32());
+    private static bool OnGlobalShellHookMessage(ref Message m)
+    {
+      InputLanguageChanged(NativeMethods.GetForegroundWindow());
+      return true;
+    }
 
-			if (SystemAndProcessInformation.isAtLeastVista)
-			{
-				NativeMethods.LCIDToLocaleName(localeId, stringBuilder, stringBuilder.Capacity, 0);
-				return stringBuilder.ToString();
-			}
+    private static string GetWindowKeyboardLanguage(IntPtr hWnd)
+    {
+      var keyboardLayout = NativeMethods.GetKeyboardLayout(
+        NativeMethods.GetWindowThreadProcessId(hWnd, IntPtr.Zero));
 
-			// XP doesn't have LCIDToLocaleName
-			NativeMethods.GetLocaleInfo(localeId, NativeMethods.LOCALE_SISO639LANGNAME, stringBuilder, stringBuilder.Capacity);
-			var languageName = stringBuilder.ToString();
-			NativeMethods.GetLocaleInfo(localeId, NativeMethods.LOCALE_SISO3166CTRYNAME, stringBuilder, stringBuilder.Capacity);
-			return languageName + "-" + stringBuilder;
-		}
+      var localeId = unchecked((uint)(short)keyboardLayout.ToInt32());
 
-		private void SetNewLanguage(string language)
-		{
-			if (language != label.Text)
-			{
-				var oldLeft = label.Left;
-				var oldRight = label.Right;
-				var oldWidth = label.Width;
-				label.Text = language;
+      if (SystemAndProcessInformation.isAtLeastVista)
+      {
+        NativeMethods.LCIDToLocaleName(localeId, stringBuilder, stringBuilder.Capacity, 0);
+        return stringBuilder.ToString();
+      }
 
-				label.Width = TextRenderer.MeasureText(label.Text, label.Font).Width;
-				if (oldWidth != label.Width)
-				{
-					this.RepositionControls(oldLeft, oldRight);
-					bar.DoFixedWidthWidgetWidthChanged(this);
-				}
-			}
-		}
+      // XP doesn't have LCIDToLocaleName
+      NativeMethods.GetLocaleInfo(localeId, NativeMethods.LOCALE_SISO639LANGNAME, stringBuilder, stringBuilder.Capacity);
+      var languageName = stringBuilder.ToString();
+      NativeMethods.GetLocaleInfo(localeId, NativeMethods.LOCALE_SISO3166CTRYNAME, stringBuilder, stringBuilder.Capacity);
+      return languageName + "-" + stringBuilder;
+    }
 
-		private void SetNewLanguage(IntPtr hWnd)
-		{
-			if (bar.Monitor.CurrentVisibleWorkspace.IsCurrentWorkspace)
-			{
-				SetNewLanguage(GetWindowKeyboardLanguage(hWnd));
-			}
-		}
+    private void SetNewLanguage(string language)
+    {
+      if (language != label.Text)
+      {
+        var oldLeft = label.Left;
+        var oldRight = label.Right;
+        var oldWidth = label.Width;
+        label.Text = language;
 
-		#region IFixedWidthWidget Members
+        label.Width = TextRenderer.MeasureText(label.Text, label.Font).Width;
+        if (oldWidth != label.Width)
+        {
+          this.RepositionControls(oldLeft, oldRight);
+          bar.DoFixedWidthWidgetWidthChanged(this);
+        }
+      }
+    }
 
-		void IWidget.StaticInitializeWidget(Windawesome windawesome)
-		{
-			if (NativeMethods.RegisterGlobalShellHook(windawesome.Handle))
-			{
-				globalShellHookMessage = NativeMethods.RegisterWindowMessage("GLOBAL_SHELL_HOOK");
-				if (SystemAndProcessInformation.isAtLeastVista && SystemAndProcessInformation.isRunningElevated)
-				{
-					if (SystemAndProcessInformation.isAtLeast7)
-					{
-						NativeMethods.ChangeWindowMessageFilterEx(windawesome.Handle, globalShellHookMessage, NativeMethods.MSGFLTEx.MSGFLT_ALLOW, IntPtr.Zero);
-					}
-					else
-					{
-						NativeMethods.ChangeWindowMessageFilter(globalShellHookMessage, NativeMethods.MSGFLT.MSGFLT_ADD);
-					}
-				}
+    private void SetNewLanguage(IntPtr hWnd)
+    {
+      if (bar.Monitor.CurrentVisibleWorkspace.IsCurrentWorkspace)
+      {
+        SetNewLanguage(GetWindowKeyboardLanguage(hWnd));
+      }
+    }
 
-				windawesome.RegisterMessage((int) globalShellHookMessage, OnGlobalShellHookMessage);
-			}
-		}
+    #region IFixedWidthWidget Members
 
-		void IWidget.InitializeWidget(Bar bar)
-		{
-			this.bar = bar;
+    void IWidget.StaticInitializeWidget(Windawesome windawesome)
+    {
+      if (NativeMethods.RegisterGlobalShellHook(windawesome.Handle))
+      {
+        globalShellHookMessage = NativeMethods.RegisterWindowMessage("GLOBAL_SHELL_HOOK");
+        if (SystemAndProcessInformation.isAtLeastVista && SystemAndProcessInformation.isRunningElevated)
+        {
+          if (SystemAndProcessInformation.isAtLeast7)
+          {
+            NativeMethods.ChangeWindowMessageFilterEx(windawesome.Handle, globalShellHookMessage, NativeMethods.MSGFLTEx.MSGFLT_ALLOW, IntPtr.Zero);
+          }
+          else
+          {
+            NativeMethods.ChangeWindowMessageFilter(globalShellHookMessage, NativeMethods.MSGFLT.MSGFLT_ADD);
+          }
+        }
 
-			label = bar.CreateLabel("", 0);
-			label.BackColor = backgroundColor;
-			label.ForeColor = foregroundColor;
-			label.TextAlign = ContentAlignment.MiddleCenter;
+        windawesome.RegisterMessage((int)globalShellHookMessage, OnGlobalShellHookMessage);
+      }
+    }
 
-			Workspace.WindowActivatedEvent += SetNewLanguage;
-			InputLanguageChanged += SetNewLanguage;
-		}
+    void IWidget.InitializeWidget(Bar bar)
+    {
+      this.bar = bar;
 
-		IEnumerable<Control> IFixedWidthWidget.GetInitialControls(bool isLeft)
-		{
-			this.isLeft = isLeft;
+      label = bar.CreateLabel("", 0);
+      label.BackColor = BackgroundColor;
+      label.ForeColor = ForegroundColor;
+      label.TextAlign = ContentAlignment.MiddleCenter;
 
-			return new[] { label };
-		}
+      Workspace.WindowActivatedEvent += SetNewLanguage;
+      InputLanguageChanged += SetNewLanguage;
+    }
 
-		public void RepositionControls(int left, int right)
-		{
-			this.label.Location = this.isLeft ? new Point(left, 0) : new Point(right - this.label.Width, 0);
-		}
+    IEnumerable<Control> IFixedWidthWidget.GetInitialControls(bool isLeft)
+    {
+      this.isLeft = isLeft;
 
-		int IWidget.GetLeft()
-		{
-			return label.Left;
-		}
+      return new[] { label };
+    }
 
-		int IWidget.GetRight()
-		{
-			return label.Right;
-		}
+    public void RepositionControls(int left, int right)
+    {
+      this.label.Location = this.isLeft ? new Point(left, 0) : new Point(right - this.label.Width, 0);
+    }
 
-		void IWidget.StaticDispose()
-		{
-			NativeMethods.UnregisterGlobalShellHook();
+    int IWidget.GetLeft()
+    {
+      return label.Left;
+    }
 
-			// remove the message filters
-			if (SystemAndProcessInformation.isAtLeastVista && SystemAndProcessInformation.isRunningElevated)
-			{
-				if (SystemAndProcessInformation.isAtLeast7)
-				{
-					NativeMethods.ChangeWindowMessageFilterEx(Windawesome.HandleStatic, globalShellHookMessage, NativeMethods.MSGFLTEx.MSGFLT_RESET, IntPtr.Zero);
-				}
-				else
-				{
-					NativeMethods.ChangeWindowMessageFilter(globalShellHookMessage, NativeMethods.MSGFLT.MSGFLT_REMOVE);
-				}
-			}
-		}
+    int IWidget.GetRight()
+    {
+      return label.Right;
+    }
 
-		void IWidget.Dispose()
-		{
-		}
+    void IWidget.StaticDispose()
+    {
+      NativeMethods.UnregisterGlobalShellHook();
 
-		void IWidget.Refresh()
-		{
-		}
+      // remove the message filters
+      if (SystemAndProcessInformation.isAtLeastVista && SystemAndProcessInformation.isRunningElevated)
+      {
+        if (SystemAndProcessInformation.isAtLeast7)
+        {
+          NativeMethods.ChangeWindowMessageFilterEx(Windawesome.HandleStatic, globalShellHookMessage, NativeMethods.MSGFLTEx.MSGFLT_RESET, IntPtr.Zero);
+        }
+        else
+        {
+          NativeMethods.ChangeWindowMessageFilter(globalShellHookMessage, NativeMethods.MSGFLT.MSGFLT_REMOVE);
+        }
+      }
+    }
 
-		#endregion
-	}
+    void IWidget.Dispose()
+    {
+    }
+
+    void IWidget.Refresh()
+    {
+    }
+
+    #endregion
+  }
 }

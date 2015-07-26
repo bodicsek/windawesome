@@ -26,6 +26,14 @@ class Workspace
   include HashInit  
 end
 
+class ProgramRule
+  include HashInit
+end
+
+class ProgramRule::Rule
+  include HashInit
+end
+
 class WorkspacesWidget
   include HashInit
 end
@@ -45,3 +53,8 @@ end
 class SeparatorWidget
   include HashInit
 end
+
+class LanguageBarWidget
+  include HashInit
+end
+
