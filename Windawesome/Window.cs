@@ -103,21 +103,21 @@ namespace Windawesome
 			NativeMethods.WS originalStyle, NativeMethods.WS_EX originalExStyle, ProgramRule.Rule rule, ProgramRule programRule, IntPtr menu) :
 			base(hWnd)
 		{
-			IsFloating = rule.isFloating;
-			Titlebar = rule.titlebar;
-			InAltTabAndTaskbar = rule.inAltTabAndTaskbar;
-			WindowBorders = rule.windowBorders;
+			IsFloating = rule.IsFloating;
+			Titlebar = rule.Titlebar;
+			InAltTabAndTaskbar = rule.InAltTabAndTaskbar;
+			WindowBorders = rule.WindowBorders;
 			this.WorkspacesCount = workspacesCount;
 			this.DisplayName = displayName;
 			this.className = className;
 			this.processName = processName;
 			this.is64BitProcess = is64BitProcess;
-			redrawOnShow = rule.redrawOnShow;
+			redrawOnShow = rule.RedrawOnShow;
 			ShowMenu = programRule.showMenu;
 			updateIcon = programRule.updateIcon;
 			onHiddenWindowShownAction = programRule.onHiddenWindowShownAction;
 			this.menu = menu;
-			this.hideFromAltTabAndTaskbarWhenOnInactiveWorkspace = rule.hideFromAltTabAndTaskbarWhenOnInactiveWorkspace;
+			this.hideFromAltTabAndTaskbarWhenOnInactiveWorkspace = rule.HideFromAltTabAndTaskbarWhenOnInactiveWorkspace;
 
 			this.originalStyle = originalStyle;
 			this.originalExStyle = originalExStyle;

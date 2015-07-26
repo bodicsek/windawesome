@@ -279,14 +279,14 @@ namespace Windawesome
 
         IEnumerable<ProgramRule.Rule> matchingRules = programRule.rules;
         var workspacesCount = programRule.rules.Length;
-        var hasWorkspaceZeroRule = matchingRules.Any(r => r.workspace == 0);
-        var hasCurrentWorkspaceRule = matchingRules.Any(r => r.workspace == CurrentWorkspace.Id);
+        var hasWorkspaceZeroRule = matchingRules.Any(r => r.Workspace == 0);
+        var hasCurrentWorkspaceRule = matchingRules.Any(r => r.Workspace == CurrentWorkspace.Id);
         // matchingRules.workspaces could be { 0, 1 } and you could be at workspace 1.
         // Then, "hWnd" would be added twice if it were not for this check
         // TODO: it could be added twice on two different workspaces which are shown at the same time
         if (hasWorkspaceZeroRule && hasCurrentWorkspaceRule)
         {
-          matchingRules = matchingRules.Where(r => r.workspace != 0);
+          matchingRules = matchingRules.Where(r => r.Workspace != 0);
           workspacesCount--;
         }
 
@@ -294,7 +294,7 @@ namespace Windawesome
         {
           if (!hasWorkspaceZeroRule && !hasCurrentWorkspaceRule)
           {
-            var hasVisibleWorkspaceRule = matchingRules.Any(r => config.Workspaces[r.workspace - 1].IsWorkspaceVisible);
+            var hasVisibleWorkspaceRule = matchingRules.Any(r => config.Workspaces[r.Workspace - 1].IsWorkspaceVisible);
             switch (programRule.onWindowCreatedAction)
             {
               case OnWindowCreatedOrShownAction.TemporarilyShowWindowOnCurrentWorkspace:
@@ -360,7 +360,7 @@ namespace Windawesome
           var window = new Window(hWnd, className, displayName, processName, workspacesCount,
               is64BitProcess, style, exStyle, rule, programRule, menu);
 
-          var workspace = rule.workspace == 0 ? CurrentWorkspace : config.Workspaces[rule.workspace - 1];
+          var workspace = rule.Workspace == 0 ? CurrentWorkspace : config.Workspaces[rule.Workspace - 1];
           list.AddLast(Tuple.Create(workspace, window));
 
           workspace.WindowCreated(window);
@@ -399,7 +399,7 @@ namespace Windawesome
                 OnWindowCreatedOnCurrentWorkspace(hWnd, programRule);
                 break;
               case OnWindowCreatedOrShownAction.MoveWindowToCurrentWorkspace:
-                ChangeApplicationToWorkspace(hWnd, CurrentWorkspace.Id, matchingRules.First().workspace);
+                ChangeApplicationToWorkspace(hWnd, CurrentWorkspace.Id, matchingRules.First().Workspace);
                 OnWindowCreatedOnCurrentWorkspace(hWnd, programRule);
                 break;
             }
