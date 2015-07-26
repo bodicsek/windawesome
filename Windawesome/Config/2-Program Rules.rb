@@ -19,6 +19,9 @@ config.program_rules =
                     [
                       ProgramRule::Rule.new(:workspace => 4)
                     ].to_clr_a(ProgramRule::Rule)),
+
+    ProgramRule.new(:display_name => ".*OpenSSH.*",
+                    :is_managed   => false),
     
     ProgramRule.new(:style_contains => NativeMethods::WS.WS_POPUP,
                     :is_managed     => false),
