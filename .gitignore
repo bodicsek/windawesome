@@ -68,3 +68,4 @@
 /Native/SystemTrayHook/bin/Win32/Release
 /Native/WindowSubclassing/bin/Win32/Release/WindowSu.67670ECC.tlog
 /Native/WindowSubclassing/bin/Win32/Release
+*.ipch

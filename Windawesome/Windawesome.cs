@@ -267,18 +267,18 @@ namespace Windawesome
 
         var programRule = config.ProgramRules.FirstOrDefault(r => r.IsMatch(hWnd, className, displayName, processName, style, exStyle));
         DoProgramRuleMatched(programRule, hWnd, className, displayName, processName, style, exStyle);
-        if (programRule == null || !programRule.isManaged)
+        if (programRule == null || !programRule.IsManaged)
         {
           return false;
         }
-        if (programRule.tryAgainAfter >= 0 && firstTry && finishedInitializing)
+        if (programRule.TryAgainAfter >= 0 && firstTry && finishedInitializing)
         {
-          System.Threading.Thread.Sleep(programRule.tryAgainAfter);
+          System.Threading.Thread.Sleep(programRule.TryAgainAfter);
           return Utilities.IsAppWindow(hWnd) && AddWindowToWorkspace(hWnd, false);
         }
 
-        IEnumerable<ProgramRule.Rule> matchingRules = programRule.rules;
-        var workspacesCount = programRule.rules.Length;
+        IEnumerable<ProgramRule.Rule> matchingRules = programRule.Rules;
+        var workspacesCount = programRule.Rules.Length;
         var hasWorkspaceZeroRule = matchingRules.Any(r => r.Workspace == 0);
         var hasCurrentWorkspaceRule = matchingRules.Any(r => r.Workspace == CurrentWorkspace.Id);
         // matchingRules.workspaces could be { 0, 1 } and you could be at workspace 1.
@@ -295,7 +295,7 @@ namespace Windawesome
           if (!hasWorkspaceZeroRule && !hasCurrentWorkspaceRule)
           {
             var hasVisibleWorkspaceRule = matchingRules.Any(r => config.Workspaces[r.Workspace - 1].IsWorkspaceVisible);
-            switch (programRule.onWindowCreatedAction)
+            switch (programRule.OnWindowCreatedAction)
             {
               case OnWindowCreatedOrShownAction.TemporarilyShowWindowOnCurrentWorkspace:
                 if (!hasVisibleWorkspaceRule)
@@ -318,7 +318,7 @@ namespace Windawesome
             }
           }
 
-          if (programRule.windowCreatedDelay == -1)
+          if (programRule.WindowCreatedDelay == -1)
           {
             try
             {
@@ -331,13 +331,13 @@ namespace Windawesome
             {
             }
           }
-          else if (programRule.windowCreatedDelay > 0)
+          else if (programRule.WindowCreatedDelay > 0)
           {
-            System.Threading.Thread.Sleep(programRule.windowCreatedDelay);
+            System.Threading.Thread.Sleep(programRule.WindowCreatedDelay);
           }
         }
 
-        if (programRule.redrawDesktopOnWindowCreated)
+        if (programRule.RedrawDesktopOnWindowCreated)
         {
           // If you have a Windows Explorer window open on one workspace (and it is the only non-minimized window open) and you start
           // mintty (which defaults to another workspace) then the desktop is not redrawn right (you can see that if mintty
@@ -369,11 +369,11 @@ namespace Windawesome
           {
             if (hasWorkspaceZeroRule || hasCurrentWorkspaceRule ||
             list.Count > 1 ||
-            programRule.onWindowCreatedAction == OnWindowCreatedOrShownAction.HideWindow ||
-            programRule.onWindowCreatedAction == OnWindowCreatedOrShownAction.TemporarilyShowWindowOnCurrentWorkspace)
+            programRule.OnWindowCreatedAction == OnWindowCreatedOrShownAction.HideWindow ||
+            programRule.OnWindowCreatedAction == OnWindowCreatedOrShownAction.TemporarilyShowWindowOnCurrentWorkspace)
             {
               // this workspace is not going to be switched to because of this window addition
-              switch (programRule.onWindowCreatedOnInactiveWorkspaceAction)
+              switch (programRule.OnWindowCreatedOnInactiveWorkspaceAction)
               {
                 case OnWindowCreatedOnWorkspaceAction.MoveToTop:
                   topmostWindows[workspace.Id - 1] = window;
@@ -383,7 +383,7 @@ namespace Windawesome
           }
         }
 
-        if (!programRule.showMenu)
+        if (!programRule.ShowMenu)
         {
           list.First.Value.Item2.ShowHideWindowMenu();
         }
@@ -392,7 +392,7 @@ namespace Windawesome
         {
           if (!hasWorkspaceZeroRule && !hasCurrentWorkspaceRule)
           {
-            switch (programRule.onWindowCreatedAction)
+            switch (programRule.OnWindowCreatedAction)
             {
               case OnWindowCreatedOrShownAction.SwitchToWindowsWorkspace:
                 SwitchToWorkspace(list.First.Value.Item1.Id, false);
@@ -416,7 +416,7 @@ namespace Windawesome
 
     private void OnWindowCreatedOnCurrentWorkspace(IntPtr newWindow, ProgramRule programRule)
     {
-      switch (programRule.onWindowCreatedOnCurrentWorkspaceAction)
+      switch (programRule.OnWindowCreatedOnCurrentWorkspaceAction)
       {
         case OnWindowCreatedOnWorkspaceAction.MoveToTop:
           ActivateWindow(new WindowBase(newWindow));

@@ -36,9 +36,9 @@ namespace Windawesome.Plugins
 				writer.WriteLine("MATCHED - class '{0}'; caption '{1}'; processName '{2}';",
 					className, displayName, processName);
 				writer.WriteLine("\tAGAINST RULE WITH class '{0}'; caption '{1}'; process name '{2}';",
-					programRule.className, programRule.displayName, programRule.processName);
+					programRule.ClassName, programRule.DisplayName, programRule.ProcessName);
 				writer.WriteLine("\tstyle contains: '{0}'; style not contains '{1}'; ex style contains '{2}'; ex style not contains '{3}'; is managed '{4}'",
-					programRule.styleContains, programRule.styleNotContains, programRule.exStyleContains, programRule.exStyleNotContains, programRule.isManaged);
+					programRule.StyleContains, programRule.StyleNotContains, programRule.ExStyleContains, programRule.ExStyleNotContains, programRule.IsManaged);
 			}
 			else
 			{

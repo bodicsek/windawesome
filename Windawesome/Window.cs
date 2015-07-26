@@ -45,7 +45,7 @@ namespace Windawesome
 		private NativeMethods.WINDOWPLACEMENT windowPlacement;
 		private readonly NativeMethods.WINDOWPLACEMENT originalWindowPlacement;
 
-		private readonly ProgramRule.CustomMatchingFunction customOwnedWindowMatchingFunction;
+		private readonly ProgramRule.CustomMatchingFunctionDelegate customOwnedWindowMatchingFunction;
 
 		private readonly LinkedList<IntPtr> ownedWindows;
 
@@ -113,9 +113,9 @@ namespace Windawesome
 			this.processName = processName;
 			this.is64BitProcess = is64BitProcess;
 			redrawOnShow = rule.RedrawOnShow;
-			ShowMenu = programRule.showMenu;
-			updateIcon = programRule.updateIcon;
-			onHiddenWindowShownAction = programRule.onHiddenWindowShownAction;
+			ShowMenu = programRule.ShowMenu;
+			updateIcon = programRule.UpdateIcon;
+			onHiddenWindowShownAction = programRule.OnHiddenWindowShownAction;
 			this.menu = menu;
 			this.hideFromAltTabAndTaskbarWhenOnInactiveWorkspace = rule.HideFromAltTabAndTaskbarWhenOnInactiveWorkspace;
 
@@ -126,7 +126,7 @@ namespace Windawesome
 			SavePosition();
 			originalWindowPlacement = windowPlacement;
 
-			this.customOwnedWindowMatchingFunction = programRule.customOwnedWindowMatchingFunction;
+			this.customOwnedWindowMatchingFunction = programRule.CustomOwnedWindowMatchingFunction;
 
 			this.ownedWindows = new LinkedList<IntPtr>();
 			this.ownedWindows.AddFirst(hWnd);

@@ -170,114 +170,6 @@ namespace Windawesome
 
   public class ProgramRule
   {
-    public readonly Regex className;
-    public readonly Regex displayName;
-    public readonly Regex processName;
-    public readonly NativeMethods.WS styleContains;
-    public readonly NativeMethods.WS styleNotContains;
-    public readonly NativeMethods.WS_EX exStyleContains;
-    public readonly NativeMethods.WS_EX exStyleNotContains;
-    private readonly CustomMatchingFunction customMatchingFunction;
-    internal readonly CustomMatchingFunction customOwnedWindowMatchingFunction;
-
-    public readonly bool isManaged;
-    internal readonly int tryAgainAfter;
-    internal readonly int windowCreatedDelay;
-    internal readonly bool redrawDesktopOnWindowCreated;
-    internal readonly bool showMenu;
-    internal readonly bool updateIcon;
-    internal readonly OnWindowCreatedOrShownAction onWindowCreatedAction;
-    internal readonly OnWindowCreatedOrShownAction onHiddenWindowShownAction;
-    internal readonly OnWindowCreatedOnWorkspaceAction onWindowCreatedOnCurrentWorkspaceAction;
-    internal readonly OnWindowCreatedOnWorkspaceAction onWindowCreatedOnInactiveWorkspaceAction;
-    internal readonly Rule[] rules;
-
-    public delegate bool CustomMatchingFunction(IntPtr hWnd);
-
-    private static bool DefaultOwnedWindowMatchingFunction(IntPtr hWnd)
-    {
-      var exStyle = NativeMethods.GetWindowExStyleLongPtr(hWnd);
-      return !exStyle.HasFlag(NativeMethods.WS_EX.WS_EX_NOACTIVATE) &&
-        !exStyle.HasFlag(NativeMethods.WS_EX.WS_EX_TOOLWINDOW);
-    }
-
-    internal bool IsMatch(IntPtr hWnd, string cName, string dName, string pName, NativeMethods.WS style, NativeMethods.WS_EX exStyle)
-    {
-      return className.IsMatch(cName) && displayName.IsMatch(dName) && processName.IsMatch(pName) &&
-        (style & styleContains) == styleContains && (style & styleNotContains) == 0 &&
-        (exStyle & exStyleContains) == exStyleContains && (exStyle & exStyleNotContains) == 0 &&
-        customMatchingFunction(hWnd);
-    }
-
-    public ProgramRule()
-    {
-
-    }
-
-    public ProgramRule(string className = ".*",
-      string displayName = ".*",
-      string processName = ".*",
-      NativeMethods.WS styleContains = (NativeMethods.WS) 0,
-      NativeMethods.WS styleNotContains = (NativeMethods.WS) 0,
-      NativeMethods.WS_EX exStyleContains = (NativeMethods.WS_EX) 0,
-      NativeMethods.WS_EX exStyleNotContains = (NativeMethods.WS_EX) 0,
-      CustomMatchingFunction customMatchingFunction = null,
-      CustomMatchingFunction customOwnedWindowMatchingFunction = null,
-      bool isManaged = true,
-      int tryAgainAfter = -1,
-      int windowCreatedDelay = -1,
-      bool redrawDesktopOnWindowCreated = false,
-      bool showMenu = true,
-      bool updateIcon = false,
-      OnWindowCreatedOrShownAction onWindowCreatedAction = OnWindowCreatedOrShownAction.SwitchToWindowsWorkspace,
-      OnWindowCreatedOrShownAction onHiddenWindowShownAction = OnWindowCreatedOrShownAction.SwitchToWindowsWorkspace,
-      OnWindowCreatedOnWorkspaceAction onWindowCreatedOnCurrentWorkspaceAction = OnWindowCreatedOnWorkspaceAction.MoveToTop,
-      OnWindowCreatedOnWorkspaceAction onWindowCreatedOnInactiveWorkspaceAction = OnWindowCreatedOnWorkspaceAction.MoveToTop,
-      int showOnWorkspacesCount = 0,
-      IEnumerable<Rule> rules = null)
-    {
-      this.className = new Regex(className, RegexOptions.Compiled);
-      this.displayName = new Regex(displayName, RegexOptions.Compiled);
-      this.processName = new Regex(processName, RegexOptions.Compiled);
-      this.styleContains = styleContains;
-      this.styleNotContains = styleNotContains;
-      this.exStyleContains = exStyleContains;
-      this.exStyleNotContains = exStyleNotContains;
-      this.customMatchingFunction = customMatchingFunction ?? Utilities.IsAltTabWindow;
-      this.customOwnedWindowMatchingFunction = customOwnedWindowMatchingFunction ?? DefaultOwnedWindowMatchingFunction;
-
-      this.isManaged = isManaged;
-      if (isManaged)
-      {
-        this.tryAgainAfter = tryAgainAfter;
-        this.windowCreatedDelay = windowCreatedDelay;
-        this.redrawDesktopOnWindowCreated = redrawDesktopOnWindowCreated;
-        this.showMenu = showMenu;
-        this.updateIcon = updateIcon;
-        this.onWindowCreatedAction = onWindowCreatedAction;
-        this.onHiddenWindowShownAction = onHiddenWindowShownAction;
-        this.onWindowCreatedOnCurrentWorkspaceAction = onWindowCreatedOnCurrentWorkspaceAction;
-        this.onWindowCreatedOnInactiveWorkspaceAction = onWindowCreatedOnInactiveWorkspaceAction;
-
-        if (showOnWorkspacesCount > 0)
-        {
-          if (rules == null)
-          {
-            rules = new Rule[] { };
-          }
-
-          // This is slow (n ^ 2), but it doesn't matter in this case
-          this.rules = rules.Concat(
-            Enumerable.Range(1, showOnWorkspacesCount).Where(i => rules.All(r => r.Workspace != i)).Select(i => new Rule(i))).
-            ToArray();
-        }
-        else
-        {
-          this.rules = rules == null ? new[] { new Rule() } : rules.ToArray();
-        }
-      }
-    }
-
     public class Rule
     {
       public int Workspace { get; set; }
@@ -286,7 +178,7 @@ namespace Windawesome
       public State InAltTabAndTaskbar { get; set; }
       public State WindowBorders { get; set; }
       public bool RedrawOnShow { get; set; }
-      public bool HideFromAltTabAndTaskbarWhenOnInactiveWorkspace { get; set; } 
+      public bool HideFromAltTabAndTaskbarWhenOnInactiveWorkspace { get; set; }
 
       public Rule()
       {
@@ -298,7 +190,7 @@ namespace Windawesome
         RedrawOnShow = false;
         HideFromAltTabAndTaskbarWhenOnInactiveWorkspace = false;
       }
-      
+
       public Rule(int workspace = 0,
         bool isFloating = false,
         State titlebar = State.AS_IS,
@@ -315,6 +207,167 @@ namespace Windawesome
         RedrawOnShow = redrawOnShow;
         HideFromAltTabAndTaskbarWhenOnInactiveWorkspace = hideFromAltTabAndTaskbarWhenOnInactiveWorkspace;
       }
+    }
+
+    private Regex _className;
+    private Regex _displayName;
+    private Regex _processName;
+
+    public string ClassName
+    {
+      get { return _className.ToString(); }
+      set { _className = new Regex(value, RegexOptions.Compiled); }
+    }
+
+    public string DisplayName
+    {
+      get { return _displayName.ToString(); }
+      set { _displayName = new Regex(value, RegexOptions.Compiled); }
+    }
+
+    public string ProcessName
+    {
+      get { return _processName.ToString(); }
+      set { _processName = new Regex(value, RegexOptions.Compiled); }
+    }
+
+    public NativeMethods.WS StyleContains { get; set; }
+
+    public NativeMethods.WS StyleNotContains { get; set; }
+
+    public NativeMethods.WS_EX ExStyleContains { get; set; }
+
+    public NativeMethods.WS_EX ExStyleNotContains { get; set; }
+
+    public CustomMatchingFunctionDelegate CustomMatchingFunction { get; set; }
+
+    public CustomMatchingFunctionDelegate CustomOwnedWindowMatchingFunction { get; set; }
+
+    public bool IsManaged { get; set; }
+
+    public int TryAgainAfter { get; set; }
+
+    public int WindowCreatedDelay { get; set; }
+
+    public bool RedrawDesktopOnWindowCreated { get; set; }
+
+    public bool ShowMenu { get; set; }
+
+    public bool UpdateIcon { get; set; }
+
+    public OnWindowCreatedOrShownAction OnWindowCreatedAction { get; set; }
+
+    public OnWindowCreatedOrShownAction OnHiddenWindowShownAction { get; set; }
+
+    public OnWindowCreatedOnWorkspaceAction OnWindowCreatedOnCurrentWorkspaceAction { get; set; }
+
+    public OnWindowCreatedOnWorkspaceAction OnWindowCreatedOnInactiveWorkspaceAction { get; set; }
+
+    public Rule[] Rules { get; set; }
+
+    public delegate bool CustomMatchingFunctionDelegate(IntPtr hWnd);
+
+    public ProgramRule()
+    {
+      ClassName = ".*";
+      DisplayName = ".*";
+      ProcessName = ".*";
+      StyleContains = (NativeMethods.WS)0;
+      StyleNotContains = (NativeMethods.WS)0;
+      ExStyleContains = (NativeMethods.WS_EX)0;
+      ExStyleNotContains = (NativeMethods.WS_EX)0;
+      CustomMatchingFunction = Utilities.IsAltTabWindow;
+      CustomOwnedWindowMatchingFunction = DefaultOwnedWindowMatchingFunction;
+      IsManaged = true;
+      TryAgainAfter = -1;
+      WindowCreatedDelay = -1;
+      RedrawDesktopOnWindowCreated = false;
+      ShowMenu = true;
+      UpdateIcon = false;
+      OnWindowCreatedAction = OnWindowCreatedOrShownAction.SwitchToWindowsWorkspace;
+      OnHiddenWindowShownAction = OnWindowCreatedOrShownAction.SwitchToWindowsWorkspace;
+      OnWindowCreatedOnCurrentWorkspaceAction = OnWindowCreatedOnWorkspaceAction.MoveToTop;
+      OnWindowCreatedOnInactiveWorkspaceAction = OnWindowCreatedOnWorkspaceAction.MoveToTop;
+      Rules = new[] { new Rule() };
+    }
+
+    public ProgramRule(string className = ".*",
+      string displayName = ".*",
+      string processName = ".*",
+      NativeMethods.WS styleContains = (NativeMethods.WS) 0,
+      NativeMethods.WS styleNotContains = (NativeMethods.WS) 0,
+      NativeMethods.WS_EX exStyleContains = (NativeMethods.WS_EX) 0,
+      NativeMethods.WS_EX exStyleNotContains = (NativeMethods.WS_EX) 0,
+      CustomMatchingFunctionDelegate customMatchingFunction = null,
+      CustomMatchingFunctionDelegate customOwnedWindowMatchingFunction = null,
+      bool isManaged = true,
+      int tryAgainAfter = -1,
+      int windowCreatedDelay = -1,
+      bool redrawDesktopOnWindowCreated = false,
+      bool showMenu = true,
+      bool updateIcon = false,
+      OnWindowCreatedOrShownAction onWindowCreatedAction = OnWindowCreatedOrShownAction.SwitchToWindowsWorkspace,
+      OnWindowCreatedOrShownAction onHiddenWindowShownAction = OnWindowCreatedOrShownAction.SwitchToWindowsWorkspace,
+      OnWindowCreatedOnWorkspaceAction onWindowCreatedOnCurrentWorkspaceAction = OnWindowCreatedOnWorkspaceAction.MoveToTop,
+      OnWindowCreatedOnWorkspaceAction onWindowCreatedOnInactiveWorkspaceAction = OnWindowCreatedOnWorkspaceAction.MoveToTop,
+      int showOnWorkspacesCount = 0,
+      IEnumerable<Rule> rules = null)
+    {
+      ClassName = className;
+      DisplayName = displayName;
+      ProcessName = processName;
+      StyleContains = styleContains;
+      StyleNotContains = styleNotContains;
+      ExStyleContains = exStyleContains;
+      ExStyleNotContains = exStyleNotContains;
+      CustomMatchingFunction = customMatchingFunction ?? Utilities.IsAltTabWindow;
+      CustomOwnedWindowMatchingFunction = customOwnedWindowMatchingFunction ?? DefaultOwnedWindowMatchingFunction;
+
+      IsManaged = isManaged;
+      if (IsManaged)
+      {
+        TryAgainAfter = tryAgainAfter;
+        WindowCreatedDelay = windowCreatedDelay;
+        RedrawDesktopOnWindowCreated = redrawDesktopOnWindowCreated;
+        ShowMenu = showMenu;
+        UpdateIcon = updateIcon;
+        OnWindowCreatedAction = onWindowCreatedAction;
+        OnHiddenWindowShownAction = onHiddenWindowShownAction;
+        OnWindowCreatedOnCurrentWorkspaceAction = onWindowCreatedOnCurrentWorkspaceAction;
+        OnWindowCreatedOnInactiveWorkspaceAction = onWindowCreatedOnInactiveWorkspaceAction;
+
+        if (showOnWorkspacesCount > 0)
+        {
+          if (rules == null)
+          {
+            rules = new Rule[] { };
+          }
+
+          // This is slow (n ^ 2), but it doesn't matter in this case
+          Rules = rules.Concat(
+            Enumerable.Range(1, showOnWorkspacesCount).Where(i => rules.All(r => r.Workspace != i)).Select(i => new Rule(i))).
+            ToArray();
+        }
+        else
+        {
+          Rules = rules == null ? new[] { new Rule() } : rules.ToArray();
+        }
+      }
+    }
+
+    internal bool IsMatch(IntPtr hWnd, string cName, string dName, string pName, NativeMethods.WS style, NativeMethods.WS_EX exStyle)
+    {
+      return _className.IsMatch(cName) && _displayName.IsMatch(dName) && _processName.IsMatch(pName) &&
+        (style & StyleContains) == StyleContains && (style & StyleNotContains) == 0 &&
+        (exStyle & ExStyleContains) == ExStyleContains && (exStyle & ExStyleNotContains) == 0 &&
+        CustomMatchingFunction(hWnd);
+    }
+
+    private static bool DefaultOwnedWindowMatchingFunction(IntPtr hWnd)
+    {
+      var exStyle = NativeMethods.GetWindowExStyleLongPtr(hWnd);
+      return !exStyle.HasFlag(NativeMethods.WS_EX.WS_EX_NOACTIVATE) &&
+        !exStyle.HasFlag(NativeMethods.WS_EX.WS_EX_TOOLWINDOW);
     }
   }
 }
